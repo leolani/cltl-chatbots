@@ -1,13 +1,12 @@
 from datetime import date
 from random import choice, sample, randint, uniform
-
+from random import getrandbits
 import numpy as np
 
 from cltl.brain import RdfBuilder, Perspective
 from cltl.brain.utils.base_cases import visuals
 from cltl.combot.backend.api.discrete import UtteranceType, Emotion
-#from cltl.combot.infra.util import Bounds
-#from brain_external import Context, Face, Object, Chat, Utterance, UtteranceHypothesis
+from emissor.representation.scenario import Modality, ImageSignal, TextSignal, Mention, Annotation, Scenario
 
 #TEST_IMG = np.zeros((128,))
 #TEST_BOUNDS = Bounds(0.0, 0.0, 0.5, 1.0)
@@ -245,3 +244,108 @@ def transform_capsule(capsule):
     set_triple(capsule, utt)
 
     return utt
+
+
+def seq_to_text (seq):
+    text = ""
+    for c in seq:
+        text+=c
+    return text
+
+def generate_obl_object_json(human:str):
+    json_string ={
+        "objects": [{'type': 'chair', 'confidence': 0.59, 'id': 1},
+                    {'type': 'table', 'confidence': 0.73, 'id': 1},
+                    {'type': 'pillbox', 'confidence': 0.32, 'id': 1}],
+        "people": [{'name': human, 'confidence': 0.98, 'id': 1}]
+            }
+    return json_string
+
+def scenario_utterance_to_capsule(scenario: Scenario, 
+                                  place_id: str, 
+                                  locatio: str, 
+                                  signal: TextSignal, 
+                                  author:str, 
+                                  perspective:str, subj: str, 
+                                  pred:str, obj:str):
+    value = generate_obl_object_json(author)
+    capsule = {"chat":scenario.id,
+                   "turn":signal.id,
+                   "author": "carl",
+                    "utterance": seq_to_text(signal.seq),
+                    "utterance_type": UtteranceType.STATEMENT,
+                    "position": "0-"+str(len(signal.seq)),  #TODO generate the true offset range
+                    "subject": {"label": subj, "type": "person"},
+                    "predicate": {"type": pred},
+                    "object":  {"label": obj, "type": "object"},
+                    "perspective": perspective ,
+                    "context_id": scenario.scenario.context,
+                    "date": date.today(),
+                    "place": location['city'],
+                    "place_id": place_id,
+                    "country": location['country'],
+                    "region": location['region'],
+                    "city": location['city'],
+                    "objects":value['objects'],
+                    "people":value['people']
+                  }
+    return capsule
+
+
+def scenario_utterance_and_triple_to_capsule(scenario: Scenario, 
+                                             place_id: str,
+                                             location: str,
+                                             signal: TextSignal, 
+                                             author:str, 
+                                             perspective:str, 
+                                             triple:str):
+    value = generate_obl_object_json(author)
+    capsule = {"chat":scenario.id,
+                   "turn":signal.id,
+                   "author": "carl",
+                    "utterance": seq_to_text(signal.seq),
+                    "utterance_type": UtteranceType.STATEMENT,
+                    "position": "0-"+str(len(signal.seq)),  #TODO generate the true offset range
+                    "subject": {"label": "piek", "type": "person"},
+                    "predicate": {"type": "see"},
+                    "object":  {"label": "pills", "type": "object"},
+                    "perspective": perspective ,
+                    "context_id": scenario.scenario.context,
+                    "date": date.today(),
+                    "place": location['city'],
+                    "place_id": place_id,
+                    "country": location['country'],
+                    "region": location['region'],
+                    "city": location['city'],
+                    "objects":value['objects'],
+                    "people":value['people']
+                  }
+    
+    return capsule
+
+# Hack to make the triples compatible with the capsules
+def rephrase_triple_json_for_capsule(triple:str):
+    print(triple)
+    subject_value = triple['subject']['type'][0]
+    predicate_value = triple['predicate']['type'][0]
+    object_value = triple['object']['type'][0]
+    if len(subject_value.split('.'))>1:
+        subject_value = subject_value.split('.')[1]
+        
+    if len(predicate_value.split('.'))>1:
+        predicate_value = predicate_value.split('.')[1]
+        
+        
+    if len(object_value.split('.'))>1:
+        object_value = object_value.split('.')[1]
+
+
+    rephrase = {
+        "subject": {triple['subject']['label'],subject_value},
+        "predicate": {triple['predicate']['label'],predicate_value},
+        "object": {triple['object']['label'],object_value},
+
+
+    }
+    print(rephrase)
+    return rephrase
