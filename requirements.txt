@@ -5,3 +5,7 @@ cltl.backend[impl,host]
 cltl.reply-generation
 cltl.triple-extraction
 emissor
+jsonpickle
+opencv-python
+python_on_whales
+pillow
