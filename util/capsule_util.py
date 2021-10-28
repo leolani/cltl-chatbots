@@ -252,6 +252,7 @@ def seq_to_text (seq):
         text+=c
     return text
 
+##### Function to generate bogus elements for capsules. Without these, the update function fails
 def generate_obl_object_json(human:str):
     json_string ={
         "objects": [{'type': 'chair', 'confidence': 0.59, 'id': 1},
@@ -263,15 +264,17 @@ def generate_obl_object_json(human:str):
 
 def scenario_utterance_to_capsule(scenario: Scenario, 
                                   place_id: str, 
-                                  locatio: str, 
+                                  location: str, 
                                   signal: TextSignal, 
                                   author:str, 
-                                  perspective:str, subj: str, 
-                                  pred:str, obj:str):
+                                  perspective:str, 
+                                  subj: str, 
+                                  pred:str, 
+                                  obj:str):
     value = generate_obl_object_json(author)
     capsule = {"chat":scenario.id,
-                   "turn":signal.id,
-                   "author": "carl",
+                    "turn":signal.id,
+                    "author": author,
                     "utterance": seq_to_text(signal.seq),
                     "utterance_type": UtteranceType.STATEMENT,
                     "position": "0-"+str(len(signal.seq)),  #TODO generate the true offset range
@@ -280,6 +283,7 @@ def scenario_utterance_to_capsule(scenario: Scenario,
                     "object":  {"label": obj, "type": "object"},
                     "perspective": perspective ,
                     "context_id": scenario.scenario.context,
+                    ##### standard elements
                     "date": date.today(),
                     "place": location['city'],
                     "place_id": place_id,
@@ -291,7 +295,7 @@ def scenario_utterance_to_capsule(scenario: Scenario,
                   }
     return capsule
 
-
+### create a capsule for a TextSignal with a triple and perspective string
 def scenario_utterance_and_triple_to_capsule(scenario: Scenario, 
                                              place_id: str,
                                              location: str,
@@ -302,7 +306,7 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
     value = generate_obl_object_json(author)
     capsule = {"chat":scenario.id,
                    "turn":signal.id,
-                   "author": "carl",
+                   "author": author,
                     "utterance": seq_to_text(signal.seq),
                     "utterance_type": UtteranceType.STATEMENT,
                     "position": "0-"+str(len(signal.seq)),  #TODO generate the true offset range
@@ -311,6 +315,7 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
                     "object":  {"label": "pills", "type": "object"},
                     "perspective": perspective ,
                     "context_id": scenario.scenario.context,
+                    ##### standard elements
                     "date": date.today(),
                     "place": location['city'],
                     "place_id": place_id,
@@ -349,3 +354,74 @@ def rephrase_triple_json_for_capsule(triple:str):
     }
     print(rephrase)
     return rephrase
+
+###### Hardcoded capsule for perceivedBy triple for an ImageSignal
+def scenario_image_perceivedBy_triple_to_capsule(scenario: Scenario, 
+                                             place_id: str,
+                                             location: str,
+                                             signal: ImageSignal,
+                                             author:str, 
+                                             perspective:str, 
+                                             triple:str):
+    value = generate_obl_object_json(author)
+    perspective = {"certainty": 1, "polarity": 1, "sentiment": 1}
+
+    #reference = signal.signal.id+"#"+str(signal.bounds) # NOT ALLOWED
+    capsule = {"chat":scenario.id,
+                    "turn":signal.id,
+                    "author": author,
+                    "utterance": "",
+                    "position": "image",
+                    "perspective": perspective, #obligatory bogus perspective
+                    "subject": {"label": author, "type": "person"},
+                    "predicate": {"type": "perceivedBy"},
+                    "object":  {"label": reference, "type": "string"},
+                    "context_id": scenario.scenario.context,
+                    ##### standard elements
+                    "date": date.today(),
+                    "place": location['city'],
+                    "place_id": place_id,
+                    "country": location['country'],
+                    "region": location['region'],
+                    "city": location['city'],
+                    "objects":value['objects'],
+                    "people":value['people']
+                  }
+    
+    return capsule
+
+
+def scenario_image_triple_to_capsule(scenario: Scenario, 
+                                             place_id: str,
+                                             location: str,
+                                             signal: ImageSignal, 
+                                             author: str,
+                                             subject:str, 
+                                             predicate:str, 
+                                             object:str):
+    value = generate_obl_object_json(author)
+    perspective = {"certainty": 1, "polarity": 1, "sentiment": 1}
+    #reference = signal.signal.id+"#"+str(signal.bounds)  # not allowed
+
+    capsule = {"chat":scenario.id,
+                    "turn":signal.id,
+                    "author": author,
+                    "utterance": "",
+                    "position": "image",
+                    "perspective": perspective, #obligatory bogus perspective
+                    "subject": {"label": subject, "type": "person"},
+                    "predicate": {"type": predicate},
+                    "object":  {"label": object, "type": "string"},
+                    "context_id": scenario.scenario.context,
+                    ##### standard elements
+                    "date": date.today(),
+                    "place": location['city'],
+                    "place_id": place_id,
+                    "country": location['country'],
+                    "region": location['region'],
+                    "city": location['city'],
+                    "objects":value['objects'],
+                    "people":value['people']
+                  }
+    
+    return capsule
