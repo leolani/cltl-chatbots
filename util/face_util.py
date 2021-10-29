@@ -207,9 +207,10 @@ def run_face_api(to_send: dict, url_face: str = "http://127.0.0.1:10002/") -> tu
     to_send = jsonpickle.encode(to_send)
     response = requests.post(url_face, json=to_send)
     logging.info(f"got {response} from server!...")
+ 
     response = jsonpickle.decode(response.text)
 
-    face_detection_recognition = response["face_detection_recognition"]
+    face_detection_recognition = response.text["face_detection_recognition"]
     logging.info(f"{len(face_detection_recognition)} faces deteced!")
 
     bboxes = [fdr["bbox"] for fdr in face_detection_recognition]
