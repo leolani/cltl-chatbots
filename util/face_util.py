@@ -10,6 +10,8 @@ import logging
 import os
 import uuid
 import platform
+from emissor.representation.scenario import Modality, ImageSignal, TextSignal, Mention, Annotation, Scenario
+
 
 logging.basicConfig(
     level=os.environ.get("LOGLEVEL", "INFO").upper(),
@@ -252,9 +254,6 @@ def run_age_gender_api(
 
     return ages, genders
 
-#def get_font(txt, img_fraction=0.05):
-#    font = ImageFont.truetype("/Library/fonts/Arial.ttf", fontsize)
-
 def do_stuff_with_image(
     image_path: str,
     url_face: str = "http://127.0.0.1:10002/",
@@ -327,3 +326,40 @@ def do_stuff_with_image(
     logging.debug(f"image annotated and saved at {image_path + '.ANNOTATED.jpg'}")
 
     return genders, ages, bboxes, faces_detected, det_scores, embeddings
+
+def add_face_annotation(imageSignal: ImageSignal,
+                        container_id:str,
+                        source:str,
+                        mention_id: str, 
+                        current_time: str,
+                        bbox,
+                        uri:str,
+                        name:str,
+                        age: str, 
+                        gender:str, 
+                        faceprob:str):
+    
+    annotations = []
+    annotations.append(
+                {
+                    "source":source,
+                    "timestamp": current_time,
+                    "type": "person",
+                    "value": {
+                        "uri": uri,
+                        "name": name,
+                        "age": age,
+                        "gender": gender,
+                        "faceprob": faceprob,
+                    },
+                }
+            )
+
+    mention_id = str(uuid.uuid4())
+    segment = [
+                {"bounds": bbox, "container_id": container_id, "type": "MultiIndex"}
+            ]
+    imageSignal.mentions.append(
+                {"annotations": annotations, "id": mention_id, "segment": segment}
+            )
+
