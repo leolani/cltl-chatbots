@@ -33,21 +33,32 @@ This repository will be used as the BRAIN.
 
 In order to install the packages you should do the following from the terminal:
 
-* If you do not have virtualenv for Python installed install virtualenv for Python: pip install --user virtualenv
+1) If you do not have virtualenv for Python installed install virtualenv for Python: 
+   
+* pip install --user virtualenv
+
+You need to tell Jupyter to use the kernel for the venv where you will install all the stuff:
+
+* python -m ipykernel install --user --name=venv
   
 Please read about virtual environments if you are ot familiar with it: https://janakiev.com/blog/jupyter-virtual-envs/
 
-* clone this github repository in a folder of your choice": git clone git@github.com:leolani/cltl-chatbots.git
-* cd to clt-chatbots where the code is cloned
-* create a virtual anvironment within your cloned folder: python -m venv venv
-* activate the environment: source venv/bin/activate
+2) Clone this repo and do the following commands from the terminal:
+
+* git clone git@github.com:leolani/cltl-chatbots.git
+
+3) "cd" to clt-chatbots where the code is cloned and create a virtual anvironment within your cloned folde for installing all required packages and modules:
+
+* python -m venv venv
+* source venv/bin/activate
 * pip install --upgrade pip
 * pip install -r requirements.txt
+
+4) [OPTIONAL] Some notebooks use spaCy. Download the appropriate language model for spaCy before starting within the venv:
+
+* python -m spacy download en_core_web_sm
   
 When there are no error messages you can launch jupyter to load the notebooks. 
-However, you need to tell Jupyter to use the kernel for the venv where you installed all the stuff:
-
-* python -m ipykernel install --user --name=venv
 
 ## Running the notebooks:
 

@@ -9,3 +9,4 @@ jsonpickle
 opencv-python
 python_on_whales
 pillow
+spacy

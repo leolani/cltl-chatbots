@@ -3,6 +3,11 @@
 #### It adds NERC annotations to the TextSignal and returns a list of entities detected
 import spacy
 from emissor.representation.scenario import TextSignal, Mention, Annotation, Scenario
+from emissor.representation.container import Index
+from emissor.representation.annotation import AnnotationType, Token, NER
+from emissor.representation.container import Index
+import time
+import uuid
 
 
 def add_ner_annotation_with_spacy(signal: TextSignal, nlp):
