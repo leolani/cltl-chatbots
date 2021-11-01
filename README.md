@@ -33,28 +33,31 @@ This repository will be used as the BRAIN.
 
 In order to install the packages you should do the following from the terminal:
 
-1) If you do not have virtualenv for Python installed install virtualenv for Python: 
+1) Clone this repo and do the following commands from the terminal:
+
+* git clone git@github.com:leolani/cltl-chatbots.git
+
+2) "cd" to clt-chatbots where the code is cloned and create a virtual environment within your cloned folder for installing all required packages and modules.
+If you do not have virtualenv for Python installed install virtualenv for Python: 
    
 * pip install --user virtualenv
 
 You need to tell Jupyter to use the kernel for the venv where you will install all the stuff:
 
-* python -m ipykernel install --user --name=venv
-  
-Please read about virtual environments if you are ot familiar with it: https://janakiev.com/blog/jupyter-virtual-envs/
-
-2) Clone this repo and do the following commands from the terminal:
-
-* git clone git@github.com:leolani/cltl-chatbots.git
-
-3) "cd" to clt-chatbots where the code is cloned and create a virtual anvironment within your cloned folde for installing all required packages and modules:
-
 * python -m venv venv
 * source venv/bin/activate
+  
+3) We need to make the virtual environment *venv* known to Jupyter notebooks. For this do the following:
+
+* pip install ipykernel 
+* python -m ipykernel install --user --name=venv
+   
+4) Now we are ready to install the main packages *emissor* and the *brain* and al other dependent packages:
+
 * pip install --upgrade pip
 * pip install -r requirements.txt
 
-4) [OPTIONAL] Some notebooks use spaCy. Download the appropriate language model for spaCy before starting within the venv:
+5) [OPTIONAL] Some notebooks use spaCy. Download the appropriate language model for spaCy before starting within the venv:
 
 * python -m spacy download en_core_web_sm
   
