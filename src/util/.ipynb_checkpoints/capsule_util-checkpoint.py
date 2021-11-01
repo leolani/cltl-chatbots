@@ -267,6 +267,37 @@ def scenario_utterance_to_capsule(scenario: Scenario,
                                   location: str, 
                                   signal: TextSignal, 
                                   author:str, 
+                                  subj: str, 
+                                  pred:str, 
+                                  obj:str):
+    value = generate_obl_object_json(author)
+    capsule = {"chat":scenario.id,
+                    "turn":signal.id,
+                    "author": author,
+                    "utterance": seq_to_text(signal.seq),
+                    "utterance_type": UtteranceType.STATEMENT,
+                    "position": "0-"+str(len(signal.seq)),  #TODO generate the true offset range
+                    "subject": {"label": subj, "type": "person"},
+                    "predicate": {"type": pred},
+                    "object":  {"label": obj, "type": "object"},
+                    "context_id": scenario.scenario.context,
+                    ##### standard elements
+                    "date": date.today(),
+                    "place": location['city'],
+                    "place_id": place_id,
+                    "country": location['country'],
+                    "region": location['region'],
+                    "city": location['city'],
+                    "objects":value['objects'],
+                    "people":value['people']
+                  }
+    return capsule
+
+def scenario_utterance_to_capsule_with_perspective(scenario: Scenario, 
+                                  place_id: str, 
+                                  location: str, 
+                                  signal: TextSignal, 
+                                  author:str, 
                                   perspective:str, 
                                   subj: str, 
                                   pred:str, 
@@ -294,6 +325,7 @@ def scenario_utterance_to_capsule(scenario: Scenario,
                     "people":value['people']
                   }
     return capsule
+
 
 ### create a capsule for a TextSignal with a triple and perspective string
 def scenario_utterance_and_triple_to_capsule(scenario: Scenario, 

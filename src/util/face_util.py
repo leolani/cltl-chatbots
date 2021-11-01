@@ -222,38 +222,41 @@ def run_face_api(to_send: dict, url_face: str = "http://127.0.0.1:10002/") -> tu
     return bboxes, det_scores, landmarks, embeddings
 
 
-def run_age_gender_api(
-    embeddings: list, url_age_gender: str = "http://127.0.0.1:10003/"
-) -> tuple:
-    """Make a RESTful HTTP request to the age-gender API server.
+
+def run_face_api(to_send: dict, url_face: str = "http://127.0.0.1:10002/") -> tuple:
+    """Make a RESTful HTTP request to the face API server.
 
     Args
     ----
-    embeddings: a list of embeddings. The number of elements in this list is
-        the number of faces detected in the frame.
-    url_age_gender: the url of the age-gender API server.
+    to_send: dictionary to send to the server. In this function, this will be
+        encoded with jsonpickle. I know this is not conventional, but encoding
+        and decoding is so easy with jsonpickle somehow.
+    url_face: the url of the face recognition server.
 
     Returns
     -------
-    ages: (list) a list of ages
-    genders: (list) a list of genders.
-
+    bboxes: (list) boudning boxes
+    det_scores: (list) detection scores
+    landmarks: (list) landmarks
+    embeddings: (list) face embeddings
     """
-    # -1 accounts for the batch size.
-    data = np.array(embeddings).reshape(-1, 512).astype(np.float32)
-    data = pickle.dumps(data)
-
-    data = {"embeddings": data}
-    data = jsonpickle.encode(data)
-    logging.debug(f"sending embeddings to server ...")
-    response = requests.post(url_age_gender, json=data)
+    logging.debug(f"sending image to server...")
+    to_send = jsonpickle.encode(to_send)
+    response = requests.post(url_face, json=to_send)
     logging.info(f"got {response} from server!...")
 
     response = jsonpickle.decode(response.text)
-    ages = response["ages"]
-    genders = response["genders"]
 
-    return ages, genders
+    face_detection_recognition = response["face_detection_recognition"]
+    logging.info(f"{len(face_detection_recognition)} faces deteced!")
+
+    bboxes = [fdr["bbox"] for fdr in face_detection_recognition]
+    det_scores = [fdr["det_score"] for fdr in face_detection_recognition]
+    landmarks = [fdr["landmark"] for fdr in face_detection_recognition]
+
+    embeddings = [fdr["normed_embedding"] for fdr in face_detection_recognition]
+
+    return bboxes, det_scores, landmarks, embeddings
 
 def do_stuff_with_image(
     image_path: str,
