@@ -7,7 +7,7 @@ from emissor.representation.container import Index
 from emissor.representation.scenario import Modality, ImageSignal, TextSignal, Mention, Annotation, Scenario
 from cltl.brain.long_term_memory import LongTermMemory
 from cltl.combot.backend.api.discrete import UtteranceType
-#from cltl.brain.utils.helper_functions import brain_response_to_json
+from cltl.brain.utils.helper_functions import brain_response_to_json
 from cltl.reply_generation.lenka_replier import LenkaReplier
 
 import sys
@@ -19,7 +19,7 @@ if src_path not in sys.path:
 import util.driver_util as d_util
 import util.capsule_util as c_util
 ###### NEXT IS NEEDED BECAUSE import helper_functions import brain_response_to_json failed for some reason
-import util.helper_functions as h_util
+#import util.helper_functions as h_util
 
 def process_text_and_think (scenario: Scenario, 
                   place_id:str, 
@@ -81,12 +81,12 @@ def process_text_and_reply (scenario: Scenario,
         # capsule mapping magic
         if chat.last_utterance.type == UtteranceType.QUESTION:
                 response = my_brain.query_brain(capsule)
-                response_json = h_util.brain_response_to_json(response)
+                response_json = brain_response_to_json(response)
                 reply = replier.reply_to_question(response_json)
 
         if chat.last_utterance.type == UtteranceType.STATEMENT:
                 response = my_brain.update(capsule, reason_types=True, create_label=True)
-                response_json = h_util.brain_response_to_json(response)
+                response_json = brain_response_to_json(response)
                 print(response_json)
                 reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
     return reply    
