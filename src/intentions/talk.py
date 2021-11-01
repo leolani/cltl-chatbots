@@ -18,8 +18,6 @@ if src_path not in sys.path:
 
 import util.driver_util as d_util
 import util.capsule_util as c_util
-###### NEXT IS NEEDED BECAUSE import helper_functions import brain_response_to_json failed for some reason
-#import util.helper_functions as h_util
 
 def process_text_and_think (scenario: Scenario, 
                   place_id:str, 
@@ -27,7 +25,7 @@ def process_text_and_think (scenario: Scenario,
                   textSignal: TextSignal,
                   human_id: str,
                   my_brain:LongTermMemory):
-    thoughts = ""
+    reply = ""
     chat = Chat(human_id)
     chat.add_utterance([UtteranceHypothesis(c_util.seq_to_text(textSignal.seq), 1.0)])
     chat.last_utterance.analyze()
@@ -45,10 +43,11 @@ def process_text_and_think (scenario: Scenario,
                                                                   human_id,
                                                                   chat.last_utterance.perspective, 
                                                                   triple)
-        print('Capsule:', capsule)
-        thoughts = my_brain.update(capsule, reason_types=True)
-        #print(thoughts)
-    return thoughts    
+        #print('Capsule:', capsule)
+        reply = my_brain.update(capsule, reason_types=True, create_label=False)
+        response_json = brain_response_to_json(response)
+        reply = replier.reply_to_statement(response_json, proactive=True, persist=False)
+    return reply   
 
 def process_text_and_reply (scenario: Scenario, 
                             place_id:str, 
@@ -76,7 +75,7 @@ def process_text_and_reply (scenario: Scenario,
                                                                       chat.last_utterance.perspective, 
                                                                       triple)
 
-        print(capsule)
+        #print(capsule)
 
         # capsule mapping magic
         if chat.last_utterance.type == UtteranceType.QUESTION:
@@ -85,10 +84,59 @@ def process_text_and_reply (scenario: Scenario,
                 reply = replier.reply_to_question(response_json)
 
         if chat.last_utterance.type == UtteranceType.STATEMENT:
-                response = my_brain.update(capsule, reason_types=True, create_label=True)
+                response = my_brain.update(capsule, reason_types=True, create_label=False)
                 response_json = brain_response_to_json(response)
-                print(response_json)
-                reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
+                reply = replier.reply_to_statement(response_json, proactive=True, persist=False)
     return reply    
 
+
+def process_text_and_reply_hacked (scenario: Scenario, 
+                            place_id:str, 
+                            location: str, 
+                            human_id: str, 
+                            textSignal: TextSignal, 
+                            replier: LenkaReplier, 
+                            my_brain:LongTermMemory):
+    reply = ""
+    chat = Chat(human_id)
+    chat.add_utterance([UtteranceHypothesis(c_util.seq_to_text(textSignal.seq), 1.0)])
+    chat.last_utterance.analyze()
+    
+    if chat.last_utterance.triple is None:
+        reply = "Sorry, did not get that."
+
+    else:
+        triple = c_util.rephrase_triple_json_for_capsule(chat.last_utterance.triple)
+        capsule_statement = c_util.scenario_utterance_and_triple_to_capsule(scenario, 
+                                                                      place_id,
+                                                                      location,
+                                                                      textSignal, 
+                                                                      human_id,
+                                                                      chat.last_utterance.type,
+                                                                      chat.last_utterance.perspective, 
+                                                                      triple)
+
+        capsule_query = c_util.scenario_utterance_and_triple_to_capsule(scenario, 
+                                                                      place_id,
+                                                                      location,
+                                                                      textSignal, 
+                                                                      human_id,
+                                                                      chat.last_utterance.type,
+                                                                      chat.last_utterance.perspective, 
+                                                                      chat.last_utterance.triple)
+
+
+        #print(capsule)
+
+        # capsule mapping magic
+        if chat.last_utterance.type == UtteranceType.QUESTION:
+                response = my_brain.query_brain(capsule_query)
+                response_json = brain_response_to_json(response)
+                reply = replier.reply_to_question(response_json)
+
+        if chat.last_utterance.type == UtteranceType.STATEMENT:
+                response = my_brain.update(capsule_statement, reason_types=True, create_label=False)
+                response_json = brain_response_to_json(response)
+                reply = replier.reply_to_statement(response_json, proactive=True, persist=False)
+    return reply    
 

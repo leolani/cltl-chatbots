@@ -364,7 +364,6 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
 # Hack to make the triples compatible with the capsules
 #{'subject': {'label': 'stranger', 'type': ['noun.person']}, 'predicate': {'label': 'be', 'type': ['verb.stative']}, 'object': {'label': 'Piek', 'type': ['person']}}
 def rephrase_triple_json_for_capsule(triple: str):
-        print(triple)
         subject_type = []
         object_type = []
         predicate_type = []
@@ -387,7 +386,6 @@ def rephrase_triple_json_for_capsule(triple: str):
                 "predicate": {'label': triple['predicate']['label'],  'type': predicate_type},
                 "object": {'label': triple['object']['label'], 'type': object_type},
         }
-        print(rephrase)
         return rephrase
 
 ###### Hardcoded capsule for perceivedBy triple for an ImageSignal
