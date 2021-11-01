@@ -2,6 +2,12 @@
 from cltl.brain.long_term_memory import LongTermMemory
 
 
+def get_your_name(utterance:str):
+    human_name = " ".join([foo.title() for foo in utterance.strip().split()])
+    human_name = "_".join(human_name.split())
+    return human_name
+
+
 def getTriplesFromEntities(entityList, mention:str):
     subj = ""
     pred = "relatesTo"
