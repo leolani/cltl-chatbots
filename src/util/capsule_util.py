@@ -332,7 +332,8 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
                                              place_id: str,
                                              location: str,
                                              signal: TextSignal, 
-                                             author:str, 
+                                             author:str,
+                                             utterance_type: UtteranceType,
                                              perspective:str, 
                                              triple:str):
     value = generate_obl_object_json(author)
@@ -340,11 +341,11 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
                    "turn":signal.id,
                    "author": author,
                     "utterance": seq_to_text(signal.seq),
-                    "utterance_type": UtteranceType.STATEMENT,
+                    "utterance_type": utterance_type,
                     "position": "0-"+str(len(signal.seq)),  #TODO generate the true offset range
-                    "subject": {"label": "piek", "type": "person"},
-                    "predicate": {"type": "see"},
-                    "object":  {"label": "pills", "type": "object"},
+                    "subject": {'label':triple['subject']['label'],'type':triple['subject']['type']},
+                    "predicate": {'label':triple['predicate']['label'],'type':triple['predicate']['type']},
+                    "object": {'label':triple['object']['label'],'type':triple['object']['type']},
                     "perspective": perspective ,
                     "context_id": scenario.scenario.context,
                     ##### standard elements
@@ -361,31 +362,33 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
     return capsule
 
 # Hack to make the triples compatible with the capsules
-def rephrase_triple_json_for_capsule(triple:str):
-    print(triple)
-    subject_value = triple['subject']['type'][0]
-    predicate_value = triple['predicate']['type'][0]
-    object_value = triple['object']['type'][0]
-    if len(subject_value.split('.'))>1:
-        subject_value = subject_value.split('.')[1]
-        
-    if len(predicate_value.split('.'))>1:
-        predicate_value = predicate_value.split('.')[1]
-        
-        
-    if len(object_value.split('.'))>1:
-        object_value = object_value.split('.')[1]
+#{'subject': {'label': 'stranger', 'type': ['noun.person']}, 'predicate': {'label': 'be', 'type': ['verb.stative']}, 'object': {'label': 'Piek', 'type': ['person']}}
+def rephrase_triple_json_for_capsule(triple: str):
+        print(triple)
+        subject_type = []
+        object_type = []
+        predicate_type = []
 
+        if triple['subject']['type']:
+                subject_type = triple['subject']['type'][0]
+                if len(subject_type.split('.')) > 1:
+                        subject_type = subject_type.split('.')[1]
+        if triple['predicate']['type']:
+                predicate_type = triple['predicate']['type'][0]
+                if len(predicate_type.split('.')) > 1:
+                        predicate_type = predicate_type.split('.')[1]
+        if triple['object']['type']:
+                object_type = triple['object']['type'][0]
+                if len(object_type.split('.')) > 1:
+                        object_type = object_type.split('.')[1]
 
-    rephrase = {
-        "subject": {triple['subject']['label'],subject_value},
-        "predicate": {triple['predicate']['label'],predicate_value},
-        "object": {triple['object']['label'],object_value},
-
-
-    }
-    print(rephrase)
-    return rephrase
+        rephrase = {
+                "subject": {'label': triple['subject']['label'], 'type': subject_type},
+                "predicate": {'label': triple['predicate']['label'],  'type': predicate_type},
+                "object": {'label': triple['object']['label'], 'type': object_type},
+        }
+        print(rephrase)
+        return rephrase
 
 ###### Hardcoded capsule for perceivedBy triple for an ImageSignal
 def scenario_image_perceivedBy_triple_to_capsule(scenario: Scenario, 
@@ -457,3 +460,4 @@ def scenario_image_triple_to_capsule(scenario: Scenario,
                   }
     
     return capsule
+
