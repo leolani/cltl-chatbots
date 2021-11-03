@@ -1,4 +1,7 @@
-/logs/
-/data/
+data/*
+friend_embeddings/*
 
-/friend_embeddings/
+
+*.trig
+.idea
+.DS_Store
