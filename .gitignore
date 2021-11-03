@@ -1,7 +1,16 @@
+# Jupyter Notebook and cache
+.ipynb_checkpoints
+src/*/__pycache__/*
+
+# Virtual environment
+/venv*/
+
+# Data folders
 data/*
 friend_embeddings/*
-
-
 *.trig
-.idea
+
+# MAc files
+.idea/*
 .DS_Store
+

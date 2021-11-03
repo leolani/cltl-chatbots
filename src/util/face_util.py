@@ -1,23 +1,23 @@
 import jsonpickle
+import logging
+import numpy as np
+import os
+import pickle
+import platform
 import python_on_whales
 import requests
-import numpy as np
-import pickle
 import time
-from PIL import Image, ImageDraw, ImageFont
-from glob import glob
-import logging
-import os
 import uuid
-import platform
+from PIL import Image, ImageDraw, ImageFont
 from emissor.representation.scenario import Modality, ImageSignal, TextSignal, Mention, Annotation, Scenario
-
+from glob import glob
 
 logging.basicConfig(
     level=os.environ.get("LOGLEVEL", "INFO").upper(),
     format="%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
+
 
 def cosine_similarity(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     """Compute the cosine similarity of the two vectors.
@@ -39,7 +39,7 @@ def cosine_similarity(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
 
 def start_docker_container(
-    image: str, port_id: int, sleep_time=5
+        image: str, port_id: int, sleep_time=5
 ) -> python_on_whales.Container:
     """Start docker container given the image name and port number.
 
@@ -207,7 +207,7 @@ def run_face_api(to_send: dict, url_face: str = "http://127.0.0.1:10002/") -> tu
     to_send = jsonpickle.encode(to_send)
     response = requests.post(url_face, json=to_send)
     logging.info(f"got {response} from server!...")
- 
+
     response = jsonpickle.decode(response.text)
 
     face_detection_recognition = response.text["face_detection_recognition"]
@@ -220,7 +220,6 @@ def run_face_api(to_send: dict, url_face: str = "http://127.0.0.1:10002/") -> tu
     embeddings = [fdr["normed_embedding"] for fdr in face_detection_recognition]
 
     return bboxes, det_scores, landmarks, embeddings
-
 
 
 def run_face_api(to_send: dict, url_face: str = "http://127.0.0.1:10002/") -> tuple:
@@ -258,10 +257,11 @@ def run_face_api(to_send: dict, url_face: str = "http://127.0.0.1:10002/") -> tu
 
     return bboxes, det_scores, landmarks, embeddings
 
+
 def do_stuff_with_image(
-    image_path: str,
-    url_face: str = "http://127.0.0.1:10002/",
-    url_age_gender: str = "http://127.0.0.1:10003/",
+        image_path: str,
+        url_face: str = "http://127.0.0.1:10002/",
+        url_age_gender: str = "http://127.0.0.1:10003/",
 ) -> tuple:
     """Do stuff with image.
 
@@ -294,20 +294,20 @@ def do_stuff_with_image(
     logging.debug("annotating image ...")
     image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
-    if platform.system()=='Darwin':
+    if platform.system() == 'Darwin':
         font = ImageFont.truetype("/Library/fonts/Arial.ttf", 25)
     else:
         font = ImageFont.truetype("fonts/arial.ttf", 25)
 
     assert (
-        len(genders)
-        == len(ages)
-        == len(bboxes)
-        == len(faces_detected)
-        == len(det_scores)
+            len(genders)
+            == len(ages)
+            == len(bboxes)
+            == len(faces_detected)
+            == len(det_scores)
     )
     for gender, age, bbox, uuid_name, faceprob in zip(
-        genders, ages, bboxes, faces_detected, det_scores
+            genders, ages, bboxes, faces_detected, det_scores
     ):
         draw.rectangle(bbox.tolist(), outline=(0, 0, 0))
 
@@ -321,7 +321,7 @@ def do_stuff_with_image(
         draw.text(
             (bbox[0], bbox[3]),
             "MALE " + str(round(gender["m"] * 100)) + str("%") + ", "
-            "FEMALE " + str(round(gender["f"] * 100)) + str("%"),
+                                                                 "FEMALE " + str(round(gender["f"] * 100)) + str("%"),
             fill=(0, 255, 0),
             font=font,
         )
@@ -331,39 +331,38 @@ def do_stuff_with_image(
 
     return genders, ages, bboxes, faces_detected, det_scores, embeddings
 
+
 def add_face_annotation(imageSignal: ImageSignal,
-                        container_id:str,
-                        source:str,
-                        mention_id: str, 
+                        container_id: str,
+                        source: str,
+                        mention_id: str,
                         current_time: str,
                         bbox,
-                        uri:str,
-                        name:str,
-                        age: str, 
-                        gender:str, 
-                        faceprob:str):
-    
+                        uri: str,
+                        name: str,
+                        age: str,
+                        gender: str,
+                        faceprob: str):
     annotations = []
     annotations.append(
-                {
-                    "source":source,
-                    "timestamp": current_time,
-                    "type": "person",
-                    "value": {
-                        "uri": uri,
-                        "name": name,
-                        "age": age,
-                        "gender": gender,
-                        "faceprob": faceprob,
-                    },
-                }
-            )
+        {
+            "source": source,
+            "timestamp": current_time,
+            "type": "person",
+            "value": {
+                "uri": uri,
+                "name": name,
+                "age": age,
+                "gender": gender,
+                "faceprob": faceprob,
+            },
+        }
+    )
 
     mention_id = str(uuid.uuid4())
     segment = [
-                {"bounds": bbox, "container_id": container_id, "type": "MultiIndex"}
-            ]
+        {"bounds": bbox, "container_id": container_id, "type": "MultiIndex"}
+    ]
     imageSignal.mentions.append(
-                {"annotations": annotations, "id": mention_id, "segment": segment}
-            )
-
+        {"annotations": annotations, "id": mention_id, "segment": segment}
+    )

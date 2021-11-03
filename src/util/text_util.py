@@ -1,13 +1,12 @@
-
 #### Example of an annotation function that adds annotations to a Signal
 #### It adds NERC annotations to the TextSignal and returns a list of entities detected
 import spacy
-from emissor.representation.scenario import TextSignal, Mention, Annotation, Scenario
-from emissor.representation.container import Index
-from emissor.representation.annotation import AnnotationType, Token, NER
-from emissor.representation.container import Index
 import time
 import uuid
+from emissor.representation.annotation import AnnotationType, Token, NER
+from emissor.representation.container import Index
+from emissor.representation.container import Index
+from emissor.representation.scenario import TextSignal, Mention, Annotation, Scenario
 
 
 def add_ner_annotation_with_spacy(signal: TextSignal, nlp):
@@ -32,6 +31,5 @@ def add_ner_annotation_with_spacy(signal: TextSignal, nlp):
                             for offset, annotation in zip(offsets, annotations)])
     signal.mentions.extend([Mention(str(uuid.uuid4()), [segment], [annotation])
                             for segment, annotation in zip(segments, ner_annotations)])
-    #print(entity_list)
+    # print(entity_list)
     return entity_list
-

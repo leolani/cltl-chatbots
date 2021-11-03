@@ -11,3 +11,4 @@ python_on_whales
 pillow
 spacy
 tqdm
+ipykernel
