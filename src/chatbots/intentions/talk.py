@@ -10,11 +10,11 @@ from cltl.reply_generation.lenka_replier import LenkaReplier
 from cltl.triple_extraction.api import Chat, UtteranceHypothesis
 from emissor.representation.scenario import TextSignal, Scenario
 
-src_path = os.path.abspath(os.path.join('..'))
+src_path = os.path.abspath(os.path.join('../..'))
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-import util.capsule_util as c_util
+import chatbots.util.capsule_util as c_util
 
 
 def process_text_and_think(scenario: Scenario,

@@ -5,8 +5,8 @@ src/*/__pycache__/*
 # Virtual environment
 /venv*/
 
-# Data folders
-data/*
+# Scenarion folders in the data folder
+data/*/*
 friend_embeddings/*
 *.trig
 
