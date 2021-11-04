@@ -70,6 +70,8 @@ def process_text_and_reply(scenario: Scenario,
         reply = "Sorry, did not get that."
 
     else:
+        print(chat.last_utterance.type)
+        print(chat.last_utterance.triple) 
         capsule = c_util.scenario_utterance_and_triple_to_capsule(scenario,
                                                                   place_id,
                                                                   location,

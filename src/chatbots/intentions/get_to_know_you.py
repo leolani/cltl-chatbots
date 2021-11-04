@@ -17,20 +17,11 @@ import pickle
 ### The function returns the human_name and the human_id.
 ### Human_name is used to address the user, and human_id is used to store properties of the user
 
-def get_to_know_person(scenario: Scenario, agent:str, gender:str, age: str, uuid_name: str, embedding, friends_path:str):
-        ### This is a stranger
-        ### We create the agent response and store it as a text signal
-        human_name = "Stranger"
-        response = (
-            f"Hi there. We haven't met. I only know that \n"
-            f"your estimated age is {age} \n and that your estimated gender is "
-            f"{gender}. What's your name?"
-        )
-        print(f"{agent}: {response}")
-        textSignal = d_util.create_text_signal(scenario, response)
-        scenario.append_signal(textSignal)
-        
+
+def get_a_name_and_id (scenario: Scenario, agent:str):
         confirm = ""
+        human_name = ""
+        human_id=""
         while confirm.lower().find("yes")==-1:
             ### We take the response from the user and store it as a text signal
             utterance = input("\n")
@@ -51,17 +42,39 @@ def get_to_know_person(scenario: Scenario, agent:str, gender:str, age: str, uuid
             confirm = input("\n")
             textSignal = d_util.create_text_signal(scenario, confirm)
             scenario.append_signal(textSignal)
-
-
+            
         current_time = str(datetime.now().microsecond)
         human_id = human_name+"_t_"+current_time
+        return human_name, human_id
+
+def get_to_know_person(scenario: Scenario, agent:str, gender:str, age: str, uuid_name: str, embedding, friends_path:str):
+        ### This is a stranger
+        ### We create the agent response and store it as a text signal
+        human_name = "Stranger"
+        response = (
+            f"Hi there. We haven't met. I only know that \n"
+            f"your estimated age is {age} \n and that your estimated gender is "
+            f"{gender}. What's your name?"
+        )
+        print(f"{agent}: {response}")
+        textSignal = d_util.create_text_signal(scenario, response)
+        scenario.append_signal(textSignal)
+        
+        human_name, human_id =get_a_name_and_id(scenario, agent)
+ 
         #### We create the embedding
         to_save = {"uuid": uuid_name["uuid"], "embedding": embedding}
         new_friends_embedding_path = friends_path+f"/{human_id}.pkl"
-        print("New friend embedding file:",new_friends_embedding_path)
+        #print("New friend embedding file:",new_friends_embedding_path)
         with open(new_friends_embedding_path, "wb") as stream:
             pickle.dump(to_save, stream)
-            
+         
+        ### The system responds to the processing of the new name input and stores it as a textsignal
+        response = f": Nice to meet you, {HUMAN_NAME}"
+        print(f"{AGENT}: {response}\n")
+        textSignal = d_util.create_text_signal(scenario, response)
+        scenario.append_signal(textSignal)
+        
         return human_id, human_name, textSignal
     
 
