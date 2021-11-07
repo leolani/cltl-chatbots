@@ -65,7 +65,8 @@ def process_text_and_reply(scenario: Scenario,
 
     chat.add_utterance([UtteranceHypothesis(c_util.seq_to_text(textSignal.seq), 1.0)])
     chat.last_utterance.analyze()
-
+    chat.last_utterance.tripl = {'predicate': {'label': 'like', 'type': ['verb.emotion']}, 'subject': {'label': 'leolani', 'type': ['agent']}, 'object': {'label': '', 'type': []}}
+    
     if chat.last_utterance.triple is None:
         reply = "Sorry, did not get that."
 
@@ -91,6 +92,35 @@ def process_text_and_reply(scenario: Scenario,
             response_json = brain_response_to_json(response)
             reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
 
+    if reply is None:
+        reply = choice(ELOQUENCE)
+
+    return reply
+
+
+def answer_a_query(triple, replier: LenkaReplier, my_brain: LongTermMemory):
+    reply = None
+
+    capsule = c_util.triple_to_capsule(triple, UtteranceType.QUESTION)
+    print(capsule)
+    response = my_brain.query_brain(capsule)
+    response_json = brain_response_to_json(response)
+    reply = replier.reply_to_question(response_json)
+
+    if reply is None:
+        reply = choice(ELOQUENCE)
+
+    return reply
+
+def post_a_triple(triple, replier: LenkaReplier, my_brain: LongTermMemory):
+    reply = None
+
+    capsule = c_util.triple_to_capsule(triple, UtteranceType.STATEMENT)
+    print(capsule)
+    response = my_brain.update(capsule, reason_types=True, create_label=False)
+    response_json = brain_response_to_json(response)
+    reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
+    
     if reply is None:
         reply = choice(ELOQUENCE)
 

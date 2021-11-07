@@ -22,6 +22,29 @@ def generate_obl_object_json(human: str):
     return json_string
 
 
+def triple_to_capsule (triple: str, utterance_type:UtteranceType):
+    capsule = {"chat": "1",
+               "turn": "1",
+               "author": "me",
+               "utterance": "",
+               "utterance_type": utterance_type,
+               "position": "",
+               "subject": {'label': triple['subject']['label'], 'type': triple['subject']['type']},
+               "predicate": {'type': triple['predicate']['label']},
+               "object": {'label': triple['object']['label'], 'type': triple['object']['type']},
+               "context_id": "1",
+               ##### standard elements
+               "date": date.today(),
+               "place": "",
+               "place_id": "",
+               "country": "",
+               "region": "",
+               "city": "",
+               "objects": [],
+               "people": []
+               }
+    return capsule    
+
 def scenario_utterance_to_capsule(scenario: Scenario,
                                   place_id: str,
                                   location: str,
