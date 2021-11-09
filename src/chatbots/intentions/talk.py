@@ -112,9 +112,19 @@ def answer_a_query(triple, replier: LenkaReplier, my_brain: LongTermMemory):
 
     return reply
 
-def post_a_triple(triple, replier: LenkaReplier, my_brain: LongTermMemory):
-    reply = None
+# basic function that creates a capsule from a triple and stores it on the brain
+# @parameters triple as a json string and the initilised brain as LongTermMemory
+# Posting triples triggers thoughts that are converted to json and returned
+def post_a_triple_and_get_thoughts(triple, my_brain: LongTermMemory):
+    response_json = None
+    capsule = c_util.triple_to_capsule(triple, UtteranceType.STATEMENT)
+    response = my_brain.update(capsule, reason_types=True, create_label=False)
+    response_json = brain_response_to_json(response)
+    return capsule, response_json
 
+
+def post_a_triple_and_verbalise_throughts(triple, replier: LenkaReplier, my_brain: LongTermMemory):
+    reply = None
     capsule = c_util.triple_to_capsule(triple, UtteranceType.STATEMENT)
     print(capsule)
     response = my_brain.update(capsule, reason_types=True, create_label=False)
