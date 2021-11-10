@@ -65,14 +65,12 @@ def process_text_and_reply(scenario: Scenario,
 
     chat.add_utterance([UtteranceHypothesis(c_util.seq_to_text(textSignal.seq), 1.0)])
     chat.last_utterance.analyze()
-    chat.last_utterance.tripl = {'predicate': {'label': 'like', 'type': ['verb.emotion']}, 'subject': {'label': 'leolani', 'type': ['agent']}, 'object': {'label': '', 'type': []}}
+
     
     if chat.last_utterance.triple is None:
         reply = "Sorry, did not get that."
 
     else:
-        print(chat.last_utterance.type)
-        print(chat.last_utterance.triple) 
         capsule = c_util.scenario_utterance_and_triple_to_capsule(scenario,
                                                                   place_id,
                                                                   location,
@@ -118,18 +116,19 @@ def answer_a_query(triple, replier: LenkaReplier, my_brain: LongTermMemory):
 def post_a_triple_and_get_thoughts(triple, my_brain: LongTermMemory):
     response_json = None
     capsule = c_util.triple_to_capsule(triple, UtteranceType.STATEMENT)
-    response = my_brain.update(capsule, reason_types=True, create_label=False)
+    response = my_brain.update(capsule)
     response_json = brain_response_to_json(response)
     return capsule, response_json
 
+# ADDITIONAL PARAMETERS  my_brain.update(capsule, reason_types=True, create_label=False)
 
 def post_a_triple_and_verbalise_throughts(triple, replier: LenkaReplier, my_brain: LongTermMemory):
     reply = None
     capsule = c_util.triple_to_capsule(triple, UtteranceType.STATEMENT)
     print(capsule)
-    response = my_brain.update(capsule, reason_types=True, create_label=False)
+    response = my_brain.update(capsule) # ADDITIONAL PARAMTERS reason_types=True, create_label=False
     response_json = brain_response_to_json(response)
-    reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
+    reply = replier.reply_to_statement(response_json) # ADDITIONAL PARAMETERS proactive=True, persist=True
     
     if reply is None:
         reply = choice(ELOQUENCE)
