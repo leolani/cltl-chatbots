@@ -3,6 +3,7 @@ import os
 import pickle
 import platform
 import uuid
+from collections import namedtuple
 from glob import glob
 from typing import Tuple
 
@@ -260,29 +261,28 @@ def run_age_gender_api(
 
     return ages, genders
 
-def do_stuff_with_image(
+
+FaceInfo = namedtuple('FaceInfo', ('gender', 'age', 'bbox', 'face_id', 'det_score', 'embedding'))
+
+
+def detect_faces(
     friends_path: str,
     image_path: str,
     url_face: str = "http://127.0.0.1:10002/",
     url_age_gender: str = "http://127.0.0.1:10003/",
-) -> tuple:
-    """Do stuff with image.
+) -> Tuple[FaceInfo]:
+    """Detect faces in an image.
 
     Args
     ----
-    image_path: path to the image in disk
+    friends_path: path to known images on disk
+    image_path: path to the image on disk
     url_face: the url of the face recognition server.
     url_age_gender: the url of the age-gender API server.
 
     Returns
     -------
-    genders
-    ages
-    bboxes
-    faces_detected
-    det_scores
-    embeddings
-
+    FaceInfo
     """
     MAXIMUM_ENTROPY = {"gender": 0.6931471805599453, "age": 4.615120516841261}
 
@@ -330,12 +330,13 @@ def do_stuff_with_image(
         )
 
         image.save(image_path + ".ANNOTATED.jpg")
+
     logging.debug(f"image annotated and saved at {image_path + '.ANNOTATED.jpg'}")
 
-    return genders, ages, bboxes, faces_detected, det_scores, embeddings
+    return tuple(FaceInfo(*info) for info in zip(genders, ages, bboxes, faces_detected, det_scores, embeddings))
 
 
-def add_face_annotation(image_signal: ImageSignal,
+def create_face_mention(image_signal: ImageSignal,
                         source: str,
                         current_time: int,
                         bbox: Tuple[int, int , int, int],
@@ -343,13 +344,13 @@ def add_face_annotation(image_signal: ImageSignal,
                         name: str,
                         age: str,
                         gender: str,
-                        face_prob: float):
-
+                        face_prob: float) -> Mention:
     face_segment = image_signal.ruler.get_area_bounding_box(*bbox)
     face_annotation = Annotation(AnnotationType.PERSON.name,
                                  FacePerson(uri, name, age, Gender[gender.upper()], face_prob),
                                  source, current_time)
-    image_signal.mentions.append(Mention(str(uuid.uuid4()), [face_segment], [face_annotation]))
+
+    return Mention(str(uuid.uuid4()), [face_segment], [face_annotation])
 
 
 @emissor_dataclass(namespace="http://cltl.nl/leolani/n2mu")

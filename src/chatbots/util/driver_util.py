@@ -18,16 +18,16 @@ def absolute_path(scenario_storage: ScenarioStorage, scenario_id: str, modality:
     return os.path.join(abs_path, file_name) if file_name else abs_path
 
 
-def create_image_signal(scenario: Scenario, file: str, bounds: Tuple[int, int, int, int]):
+def create_image_signal(scenario: Scenario, file: str, bounds: Tuple[int, int, int, int], timestamp: int = None):
+    timestamp = int(time.time() * 1e3) if timestamp is None else timestamp
     file_path = relative_path(Modality.IMAGE, file)
 
-    return ImageSignal.for_scenario(scenario.id, int(time.time() * 1e3), int(time.time() * 1e3),
-                                    file_path, bounds, [])
+    return ImageSignal.for_scenario(scenario.id, timestamp, timestamp, file_path, bounds, [])
 
 
-def create_text_signal(scenario: Scenario, utterance):
-    return TextSignal.for_scenario(scenario.id, int(time.time() * 1e3), int(time.time() * 1e3), [],
-                                     utterance, [])
+def create_text_signal(scenario: Scenario, utterance: str, timestamp: int = None):
+    timestamp = int(time.time() * 1e3) if timestamp is None else timestamp
+    return TextSignal.for_scenario(scenario.id, timestamp, timestamp, [], utterance, [])
 
 
 def create_scenario(scenarioPath: str, scenarioid: str):

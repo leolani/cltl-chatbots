@@ -1,9 +1,9 @@
 import pickle
 import time
-from datetime import datetime
 
 from cltl.brain.long_term_memory import LongTermMemory
 from emissor.representation.scenario import ImageSignal, TextSignal, Scenario
+from emissor.persistence.persistence import ScenarioController
 
 import chatbots.util.capsule_util as c_util
 import chatbots.util.driver_util as d_util
@@ -46,7 +46,7 @@ def get_a_name_and_id (scenario: Scenario, agent:str):
 
         return human_name, human_id
 
-def get_to_know_person(scenario: Scenario, agent:str, gender:str, age: str, uuid_name: str, embedding, friends_path:str):
+def get_to_know_person(scenario_ctrl: ScenarioController, agent:str, gender:str, age: str, uuid_name: str, embedding, friends_path:str):
         ### This is a stranger
         ### We create the agent response and store it as a text signal
         human_name = "Stranger"
@@ -56,10 +56,10 @@ def get_to_know_person(scenario: Scenario, agent:str, gender:str, age: str, uuid
             f"{gender}. What's your name?"
         )
         print(f"{agent}: {response}")
-        textSignal = d_util.create_text_signal(scenario, response)
-        scenario.append_signal(textSignal)
+        textSignal = d_util.create_text_signal(scenario_ctrl, response)
+        scenario_ctrl.append_signal(textSignal)
         
-        human_name, human_id =get_a_name_and_id(scenario, agent)
+        human_name, human_id =get_a_name_and_id(scenario_ctrl, agent)
  
         #### We create the embedding
         to_save = {"uuid": uuid_name["uuid"], "embedding": embedding}
@@ -69,10 +69,10 @@ def get_to_know_person(scenario: Scenario, agent:str, gender:str, age: str, uuid
             pickle.dump(to_save, stream)
          
         ### The system responds to the processing of the new name input and stores it as a textsignal
-        response = f": Nice to meet you, {human_name}"
+        response = f"Nice to meet you, {human_name}"
         print(f"{agent}: {response}\n")
-        textSignal = d_util.create_text_signal(scenario, response)
-        scenario.append_signal(textSignal)
+        textSignal = d_util.create_text_signal(scenario_ctrl, response)
+        scenario_ctrl.append_signal(textSignal)
         
         return human_id, human_name, textSignal
     
@@ -94,7 +94,6 @@ def process_new_friend_and_think (scenario: Scenario,
     age_thoughts = ""
     gender_thoughts = ""
     name_thoughts = ""
-
 
     if human_name:
         # A triple was extracted so we compare it elementwise
