@@ -1,16 +1,14 @@
-import emissor as em
-from cltl import brain
-from cltl.triple_extraction.api import Chat, UtteranceHypothesis
-from emissor.persistence import ScenarioStorage
-from emissor.representation.annotation import AnnotationType, Token, NER
-from emissor.representation.container import Index
-from emissor.representation.scenario import Modality, ImageSignal, TextSignal, Mention, Annotation, Scenario
+import pickle
+import time
+from datetime import datetime
+
 from cltl.brain.long_term_memory import LongTermMemory
-from cltl.combot.backend.api.discrete import UtteranceType
+from emissor.representation.scenario import ImageSignal, TextSignal, Scenario
+
+import chatbots.util.capsule_util as c_util
 import chatbots.util.driver_util as d_util
 
-from datetime import datetime
-import pickle
+
 ### Function that tries to get the name for a new person. A while is used till the user is happy.
 ### From the name a unique ID *human_id* is created by adding the time_stamp
 ### We store the face embeddings in the friend_embeddings folder using the unique ID *human_id*
@@ -43,8 +41,9 @@ def get_a_name_and_id (scenario: Scenario, agent:str):
             textSignal = d_util.create_text_signal(scenario, confirm)
             scenario.append_signal(textSignal)
             
-        current_time = str(datetime.now().microsecond)
-        human_id = human_name+"_t_"+current_time
+        current_time = int(time.time() * 1e3)
+        human_id = f"{human_name}_t_{current_time}"
+
         return human_name, human_id
 
 def get_to_know_person(scenario: Scenario, agent:str, gender:str, age: str, uuid_name: str, embedding, friends_path:str):
@@ -70,8 +69,8 @@ def get_to_know_person(scenario: Scenario, agent:str, gender:str, age: str, uuid
             pickle.dump(to_save, stream)
          
         ### The system responds to the processing of the new name input and stores it as a textsignal
-        response = f": Nice to meet you, {HUMAN_NAME}"
-        print(f"{AGENT}: {response}\n")
+        response = f": Nice to meet you, {human_name}"
+        print(f"{agent}: {response}\n")
         textSignal = d_util.create_text_signal(scenario, response)
         scenario.append_signal(textSignal)
         
@@ -100,7 +99,7 @@ def process_new_friend_and_think (scenario: Scenario,
     if human_name:
         # A triple was extracted so we compare it elementwise
         perspective = {"certainty": 1, "polarity": 1, "sentiment": 1}
-        capsule = c_util.scenario_utterance_to_capsule(scenario, 
+        capsule = c_util.scenario_utterance_to_capsule(scenario,
                                                                   place_id,
                                                                   location,
                                                                   textSignal,

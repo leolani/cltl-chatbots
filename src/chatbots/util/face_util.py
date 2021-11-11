@@ -1,17 +1,21 @@
-import jsonpickle
-import python_on_whales
-import requests
-import numpy as np
-import pickle
-import time
-from PIL import Image, ImageDraw, ImageFont
-from glob import glob
 import logging
 import os
-import uuid
+import pickle
 import platform
-from emissor.representation.scenario import Modality, ImageSignal, TextSignal, Mention, Annotation, Scenario
+import uuid
+from glob import glob
+from typing import Tuple
 
+import jsonpickle
+import numpy as np
+import python_on_whales
+import requests
+import time
+from PIL import Image, ImageDraw, ImageFont
+from emissor.representation.annotation import AnnotationType
+from emissor.representation.entity import Gender, Person
+from emissor.representation.ldschema import emissor_dataclass
+from emissor.representation.scenario import ImageSignal, Mention, Annotation
 
 logging.basicConfig(
     level=os.environ.get("LOGLEVEL", "INFO").upper(),
@@ -330,39 +334,24 @@ def do_stuff_with_image(
 
     return genders, ages, bboxes, faces_detected, det_scores, embeddings
 
-def add_face_annotation(imageSignal: ImageSignal,
-                        container_id:str,
-                        source:str,
-                        mention_id: str, 
-                        current_time: str,
-                        bbox,
-                        uri:str,
-                        name:str,
-                        age: str, 
-                        gender:str, 
-                        faceprob:str):
-    
-    annotations = []
-    annotations.append(
-                {
-                    "source":source,
-                    "timestamp": current_time,
-                    "type": "person",
-                    "value": {
-                        "uri": uri,
-                        "name": name,
-                        "age": age,
-                        "gender": gender,
-                        "faceprob": faceprob,
-                    },
-                }
-            )
 
-    mention_id = str(uuid.uuid4())
-    segment = [
-                {"bounds": bbox, "container_id": container_id, "type": "MultiIndex"}
-            ]
-    imageSignal.mentions.append(
-                {"annotations": annotations, "id": mention_id, "segment": segment}
-            )
+def add_face_annotation(image_signal: ImageSignal,
+                        source: str,
+                        current_time: int,
+                        bbox: Tuple[int, int , int, int],
+                        uri: str,
+                        name: str,
+                        age: str,
+                        gender: str,
+                        face_prob: float):
 
+    face_segment = image_signal.ruler.get_area_bounding_box(*bbox)
+    face_annotation = Annotation(AnnotationType.PERSON.name,
+                                 FacePerson(uri, name, age, Gender[gender.upper()], face_prob),
+                                 source, current_time)
+    image_signal.mentions.append(Mention(str(uuid.uuid4()), [face_segment], [face_annotation]))
+
+
+@emissor_dataclass(namespace="http://cltl.nl/leolani/n2mu")
+class FacePerson(Person):
+    face_prob: float
