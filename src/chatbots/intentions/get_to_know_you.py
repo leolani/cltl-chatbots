@@ -72,8 +72,8 @@ def get_to_know_person(scenario: Scenario, agent:str, gender:str, age: str, uuid
             pickle.dump(to_save, stream)
          
         ### The system responds to the processing of the new name input and stores it as a textsignal
-        response = f": Nice to meet you, {HUMAN_NAME}"
-        print(f"{AGENT}: {response}\n")
+        response = f": Nice to meet you, {human_name}"
+        print(f"{agent}: {response}\n")
         textSignal = d_util.create_text_signal(scenario, response)
         scenario.append_signal(textSignal)
         
@@ -159,4 +159,4 @@ def add_new_name_to_brain (scenario: Scenario,
     name_thoughts = my_brain.update(capsule, reason_types=True, create_label=False)
     print('Name capsule:', capsule)
 
-    return capsule, name_thoughts    
+    return capsule, name_thoughts

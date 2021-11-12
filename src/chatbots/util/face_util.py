@@ -364,10 +364,13 @@ def annotate_face(
         else:
             binary_gender = "female"
 
+        try:
+            short_name = str(uuid_name["name"].split("_")[0])
+        except:
+            short_name = str(uuid_name["name"])
+
         label_string = (
-            f"{str(uuid_name['name'].split('_')[0])}, "
-            f"{round(age['mean'])} years old, "
-            f"{binary_gender}."
+            f"{short_name}, " f"{round(age['mean'])} years old, " f"{binary_gender}."
         )
 
         color = colors(81)
