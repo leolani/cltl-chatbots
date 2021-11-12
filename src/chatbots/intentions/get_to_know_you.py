@@ -156,7 +156,7 @@ def add_new_name_to_brain (scenario: Scenario,
     # A triple was extracted so we compare it elementwise
     capsule = c_util.scenario_utterance_to_capsule(scenario,place_id,location, textSignal,human_id,human_id,"label", human_name)
 
-    name_thoughts = my_brain.update(capsule, reason_types=True, create_label=True)
+    name_thoughts = my_brain.update(capsule, reason_types=True, create_label=False)
     print('Name capsule:', capsule)
 
-    return name_thoughts    
+    return capsule, name_thoughts    

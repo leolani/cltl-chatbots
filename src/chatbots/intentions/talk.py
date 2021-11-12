@@ -1,6 +1,7 @@
 import os
 import sys
 from random import choice
+import pprint
 
 from cltl.brain.long_term_memory import LongTermMemory
 from cltl.brain.utils.helper_functions import brain_response_to_json
@@ -15,7 +16,6 @@ if src_path not in sys.path:
     sys.path.append(src_path)
 
 import chatbots.util.capsule_util as c_util
-
 
 
 # basic function that creates a capsule from a triple and stores it on the brain
@@ -51,8 +51,6 @@ def post_a_triple_and_verbalise_throughts(triple, replier: LenkaReplier, my_brai
         reply = choice(ELOQUENCE)
 
     return reply
-
-
 
 def post_a_query(triple,my_brain: LongTermMemory):
     response_json = None
@@ -113,6 +111,7 @@ def process_text_and_reply(scenario: Scenario,
                                                                   chat.last_utterance.triple)
 
         if chat.last_utterance.type == UtteranceType.QUESTION:
+            capsule = c_util.lowcase_triple_json_for_query(capsule)
             response = my_brain.query_brain(capsule)
             response_json = brain_response_to_json(response)
             reply = replier.reply_to_question(response_json)
