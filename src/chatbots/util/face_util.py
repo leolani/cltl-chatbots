@@ -296,7 +296,7 @@ def do_stuff_with_image(
     if platform.system()=='Darwin':
         font = ImageFont.truetype("/Library/fonts/Arial.ttf", 25)
     else:
-        font = ImageFont.truetype("fonts/arial.ttf", 25)
+        font = ImageFont.truetype("../../fonts/arial.ttf", 25)
 
     assert (
         len(genders)
