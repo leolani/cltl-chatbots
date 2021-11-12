@@ -12,3 +12,6 @@ pillow
 spacy
 tqdm
 ipykernel
+matplotlib
+seaborn
+torchvision
