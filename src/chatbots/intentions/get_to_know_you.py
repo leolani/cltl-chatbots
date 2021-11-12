@@ -7,6 +7,8 @@ from emissor.persistence.persistence import ScenarioController
 
 import chatbots.util.capsule_util as c_util
 import chatbots.util.driver_util as d_util
+import chatbots.util.capsule_util as c_util
+
 
 
 ### Function that tries to get the name for a new person. A while is used till the user is happy.
@@ -81,7 +83,7 @@ def get_to_know_person(scenario_ctrl: ScenarioController, agent:str, gender:str,
 ### Function that creates capsules for the basic properties of a friend: name, age and gender.
 ### The capsules are sent to the BRAIN. Thoughts are caught and returned for each property.
 
-def process_new_friend_and_think (scenario: Scenario, 
+def add_new_name_age_gender_to_brain (scenario: Scenario, 
                   place_id:str, 
                   location: str, 
                   human_id: str,
@@ -97,18 +99,16 @@ def process_new_friend_and_think (scenario: Scenario,
 
     if human_name:
         # A triple was extracted so we compare it elementwise
-        perspective = {"certainty": 1, "polarity": 1, "sentiment": 1}
         capsule = c_util.scenario_utterance_to_capsule(scenario,
                                                                   place_id,
                                                                   location,
                                                                   textSignal,
                                                                   human_id,
-                                                                  perspective,
                                                                   human_id,
                                                                   "label",
                                                                   human_name)
 
-        name_thoughts = my_brain.update(capsule, reason_types=True, create_label=False)
+        name_thoughts = my_brain.update(capsule, reason_types=True, create_label=True)
         print('Name capsule:', capsule)
 
 
@@ -136,7 +136,25 @@ def process_new_friend_and_think (scenario: Scenario,
                                                                   "gender",
                                                                   gender)
 
-        gender_thoughts = my_brain.update(capsule, reason_types=True, create_label=False)
+        gender_thoughts = my_brain.update(capsule, reason_types=True, create_label=True)
         print('Gender capsule:', capsule)
 
     return name_thoughts, age_thoughts, gender_thoughts    
+
+
+def add_new_name_to_brain (scenario: Scenario, 
+                  place_id:str, 
+                  location: str, 
+                  human_id: str,
+                  textSignal: TextSignal,
+                  human_name: str,
+                  my_brain:LongTermMemory):
+    name_thoughts = ""
+
+    # A triple was extracted so we compare it elementwise
+    capsule = c_util.scenario_utterance_to_capsule(scenario,place_id,location, textSignal,human_id,human_id,"label", human_name)
+
+    name_thoughts = my_brain.update(capsule, reason_types=True, create_label=True)
+    print('Name capsule:', capsule)
+
+    return name_thoughts    
