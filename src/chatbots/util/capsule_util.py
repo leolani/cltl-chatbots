@@ -120,6 +120,7 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
                                              utterance_type: UtteranceType,
                                              perspective: dict,
                                              triple: dict):
+    
     value = generate_obl_object_json(author)
     capsule = {"chat": scenario.id,
                "turn": signal.id,

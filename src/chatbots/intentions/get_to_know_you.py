@@ -82,7 +82,7 @@ def get_to_know_person(scenario: Scenario, agent:str, gender:str, age: str, uuid
 ### Function that creates capsules for the basic properties of a friend: name, age and gender.
 ### The capsules are sent to the BRAIN. Thoughts are caught and returned for each property.
 
-def process_new_friend_and_think (scenario: Scenario, 
+def add_new_name_age_gender_to_brain (scenario: Scenario, 
                   place_id:str, 
                   location: str, 
                   human_id: str,
@@ -142,3 +142,31 @@ def process_new_friend_and_think (scenario: Scenario,
         print('Gender capsule:', capsule)
 
     return name_thoughts, age_thoughts, gender_thoughts    
+
+
+def add_new_name_to_brain (scenario: Scenario, 
+                  place_id:str, 
+                  location: str, 
+                  human_id: str,
+                  textSignal: TextSignal,
+                  imageSignal: ImageSignal,
+                  human_name: str,
+                  my_brain:LongTermMemory):
+    name_thoughts = ""
+
+    # A triple was extracted so we compare it elementwise
+    perspective = {"certainty": 1, "polarity": 1, "sentiment": 1}
+    capsule = c_util.scenario_utterance_to_capsule(scenario, 
+                                                                  place_id,
+                                                                  location,
+                                                                  textSignal,
+                                                                  human_id,
+                                                                  perspective,
+                                                                  human_id,
+                                                                  "label",
+                                                                  human_name)
+
+    name_thoughts = my_brain.update(capsule, reason_types=True, create_label=True)
+    print('Name capsule:', capsule)
+
+    return name_thoughts    
