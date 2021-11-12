@@ -110,7 +110,7 @@ def process_new_friend_and_think (scenario: Scenario,
                                                                   "label",
                                                                   human_name)
 
-        name_thoughts = my_brain.update(capsule, reason_types=True, create_label=False)
+        name_thoughts = my_brain.update(capsule, reason_types=True, create_label=True)
         print('Name capsule:', capsule)
 
 
@@ -138,7 +138,7 @@ def process_new_friend_and_think (scenario: Scenario,
                                                                   "gender",
                                                                   gender)
 
-        gender_thoughts = my_brain.update(capsule, reason_types=True, create_label=False)
+        gender_thoughts = my_brain.update(capsule, reason_types=True, create_label=True)
         print('Gender capsule:', capsule)
 
     return name_thoughts, age_thoughts, gender_thoughts    

@@ -93,13 +93,14 @@ def process_text_and_reply(scenario: Scenario,
                            replier: LenkaReplier,
                            my_brain: LongTermMemory):
     reply = None
-
+    capsule = None
+    
     chat.add_utterance([UtteranceHypothesis(c_util.seq_to_text(textSignal.seq), 1.0)])
     chat.last_utterance.analyze()
 
     
     if chat.last_utterance.triple is None:
-        reply = "Sorry, did not get that."
+        reply = choice(ELOQUENCE)
 
     else:
         capsule = c_util.scenario_utterance_and_triple_to_capsule(scenario,
@@ -121,45 +122,6 @@ def process_text_and_reply(scenario: Scenario,
             response_json = brain_response_to_json(response)
             reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
 
-    if reply is None:
-        reply = choice(ELOQUENCE)
 
-    return reply
-
-
-
-def process_text_and_think(scenario: Scenario,
-                           place_id: str,
-                           location: str,
-                           textSignal: TextSignal,
-                           human_id: str,
-                           my_brain: LongTermMemory,
-                           replier: LenkaReplier):
-    chat = Chat(human_id)
-    chat.add_utterance([UtteranceHypothesis(c_util.seq_to_text(textSignal.seq), 1.0)])
-    chat.last_utterance.analyze()
-    # No triple was extracted, so we missed three items (s, p, o)
-
-    if chat.last_utterance.triple is None:
-        reply = "Any gossip?" + '\n'
-    else:
-        # A triple was extracted so we compare it elementwise
-        capsule = c_util.scenario_utterance_and_triple_to_capsule(scenario,
-                                                                  place_id,
-                                                                  location,
-                                                                  textSignal,
-                                                                  human_id,
-                                                                  chat.last_utterance.type,
-                                                                  chat.last_utterance.perspective,
-                                                                  chat.last_utterance.triple)
-
-        response = my_brain.update(capsule, reason_types=True, create_label=False)
-        response_json = brain_response_to_json(response)
-
-        if replier:
-            reply = replier.reply_to_statement(response_json, proactive=True, persist=False)
-        else:
-            reply = "Any gossip?" + '\n'
-
-    return reply
+    return capsule, reply
 
