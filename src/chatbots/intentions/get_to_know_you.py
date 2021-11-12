@@ -190,7 +190,7 @@ def add_new_name_to_brain(
         human_name,
     )
 
-    name_thoughts = my_brain.update(capsule, reason_types=True, create_label=True)
+    name_thoughts = my_brain.update(capsule, reason_types=True, create_label=False)
     print("Name capsule:", capsule)
 
-    return name_thoughts
+    return capsule, name_thoughts
