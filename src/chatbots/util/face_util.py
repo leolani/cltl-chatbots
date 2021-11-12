@@ -345,6 +345,8 @@ def create_face_mention(image_signal: ImageSignal,
                         age: str,
                         gender: str,
                         face_prob: float) -> Mention:
+    bbox = [max(x, lower) for x, lower in zip(bbox[:2], image_signal.ruler.bounds[:2])] + \
+            [min(x, upper) for x, upper in zip(bbox[-2:], image_signal.ruler.bounds[-2:])]
     face_segment = image_signal.ruler.get_area_bounding_box(*bbox)
     face_annotation = Annotation(AnnotationType.PERSON.name,
                                  FacePerson(uri, name, age, Gender[gender.upper()], face_prob),
