@@ -8,6 +8,8 @@ from emissor.representation.scenario import Modality, ImageSignal, TextSignal, M
 from cltl.brain.long_term_memory import LongTermMemory
 from cltl.combot.backend.api.discrete import UtteranceType
 import chatbots.util.driver_util as d_util
+import chatbots.util.capsule_util as c_util
+
 
 from datetime import datetime
 import pickle
@@ -99,13 +101,11 @@ def add_new_name_age_gender_to_brain (scenario: Scenario,
 
     if human_name:
         # A triple was extracted so we compare it elementwise
-        perspective = {"certainty": 1, "polarity": 1, "sentiment": 1}
         capsule = c_util.scenario_utterance_to_capsule(scenario, 
                                                                   place_id,
                                                                   location,
                                                                   textSignal,
                                                                   human_id,
-                                                                  perspective,
                                                                   human_id,
                                                                   "label",
                                                                   human_name)
@@ -149,22 +149,12 @@ def add_new_name_to_brain (scenario: Scenario,
                   location: str, 
                   human_id: str,
                   textSignal: TextSignal,
-                  imageSignal: ImageSignal,
                   human_name: str,
                   my_brain:LongTermMemory):
     name_thoughts = ""
 
     # A triple was extracted so we compare it elementwise
-    perspective = {"certainty": 1, "polarity": 1, "sentiment": 1}
-    capsule = c_util.scenario_utterance_to_capsule(scenario, 
-                                                                  place_id,
-                                                                  location,
-                                                                  textSignal,
-                                                                  human_id,
-                                                                  perspective,
-                                                                  human_id,
-                                                                  "label",
-                                                                  human_name)
+    capsule = c_util.scenario_utterance_to_capsule(scenario,place_id,location, textSignal,human_id,human_id,"label", human_name)
 
     name_thoughts = my_brain.update(capsule, reason_types=True, create_label=True)
     print('Name capsule:', capsule)
