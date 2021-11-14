@@ -66,7 +66,7 @@ def scenario_utterance_to_capsule(scenario: Scenario,
                "utterance_type": UtteranceType.STATEMENT,
                "position": "0-" + str(len(signal.seq)),  # TODO generate the true offset range
                "subject": {"label": subj, "type": "person"},
-               "predicate": {"type": pred},
+               "predicate": {"label": pred},
                "object": {"label": obj, "type": ""},
                "context_id": scenario.scenario.context,
                ##### standard elements
