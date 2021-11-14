@@ -103,3 +103,12 @@ workshop "Beyond Language: Multimodal Semantic Representations", IWSC2021, also 
 Piek and Baj{\v{c}}eti{\'c}, Lenka and Baez, Selene and Ba{\v{s}}i{\'c}, Suzana and Kraaijeveld, Bram},
 booktitle={International and Interdisciplinary Conference on Modeling and Using Context}, pages={238--252}, year={2019},
 organization={Springer} }
+
+@inproceedings{vossen2019leolani,
+  title={Leolani: A robot that communicates and learns about the shared world},
+  author={Vossen, Piek and Baez, Selene and Bajcetic, Lenka and Basic, Suzana and Kraaijeveld, Bram},
+  booktitle={2019 ISWC Satellite Tracks (Posters and Demonstrations, Industry, and Outrageous Ideas), ISWC 2019-Satellites},
+  pages={181--184},
+  year={2019},
+  organization={CEUR-WS}
+}
