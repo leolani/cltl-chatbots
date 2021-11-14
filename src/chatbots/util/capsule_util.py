@@ -22,11 +22,11 @@ def serialise_perspective(perspective:dict):
             polarity = perspective['polarity']
         if perspective['emotion']:
             emotion = perspective['emotion']
-        rephrase = {
+        rephrase = {'perspective': {
             "sentiment":sentiment,
             "polarity": polarity,
             "emotion": emotion
-        }
+        }}
         
         return rephrase
 
