@@ -100,7 +100,6 @@ def scenario_utterance_to_capsule_with_perspective(scenario: Scenario,
                "subject": {"label": subj, "type": "person"},
                "predicate": {"type": pred},
                "object": {"label": obj, "type": "object"},
-               #"perspective": serialise_perspective(perspective),
                "context_id": scenario.scenario.context,
                ##### standard elements
                "date": date.today(),
@@ -114,7 +113,8 @@ def scenario_utterance_to_capsule_with_perspective(scenario: Scenario,
                }
      
     if perspective:
-        capsule.update(perspective)
+        capsule.update(serialise_perspective(perspective))
+
         
     return capsule
 
@@ -149,7 +149,7 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
     if triple:
         capsule.update(rephrase_triple_json_for_capsule(triple))
     if perspective:
-        capsule.update(perspective)
+        capsule.update(serialise_perspective(perspective))
         
     return capsule
 
