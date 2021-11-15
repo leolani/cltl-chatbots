@@ -1,4 +1,5 @@
 from datetime import date
+import json
 
 from cltl.combot.backend.api.discrete import UtteranceType
 from emissor.representation.scenario import ImageSignal, TextSignal, Scenario
@@ -11,17 +12,6 @@ def seq_to_text(seq):
     return text
 
 
-##### Function to generate bogus elements for capsules. Without these, the update function fails
-def generate_obl_object_json(human: str):
-    json_string = {
-        "objects": [{'type': 'chair', 'confidence': 0.59, 'id': 1},
-                    {'type': 'table', 'confidence': 0.73, 'id': 1},
-                    {'type': 'pillbox', 'confidence': 0.32, 'id': 1}],
-        "people": [{'name': human, 'confidence': 0.98, 'id': 1}]
-    }
-    return json_string
-
-
 def triple_to_capsule (triple: str, utterance_type:UtteranceType):
     capsule = {"chat": "1",
                "turn": "1",
@@ -29,11 +19,7 @@ def triple_to_capsule (triple: str, utterance_type:UtteranceType):
                "utterance": "",
                "utterance_type": utterance_type,
                "position": "",
-               "subject": {'label': triple['subject']['label'], 'type': triple['subject']['type']},
-               "predicate": {'type': triple['predicate']['label']},
-               "object": {'label': triple['object']['label'], 'type': triple['object']['type']},
                "context_id": "1",
-               ##### standard elements
                "date": date.today(),
                "place": "",
                "place_id": "",
@@ -43,6 +29,9 @@ def triple_to_capsule (triple: str, utterance_type:UtteranceType):
                "objects": [],
                "people": []
                }
+    if triple:
+        capsule.update(rephrase_triple_json_for_capsule(triple))  
+        
     return capsule    
 
 def scenario_utterance_to_capsule(scenario: Scenario,
@@ -53,7 +42,6 @@ def scenario_utterance_to_capsule(scenario: Scenario,
                                   subj: str,
                                   pred: str,
                                   obj: str):
-    value = generate_obl_object_json(author)
     capsule = {"chat": scenario.id,
                "turn": signal.id,
                "author": author,
@@ -61,8 +49,8 @@ def scenario_utterance_to_capsule(scenario: Scenario,
                "utterance_type": UtteranceType.STATEMENT,
                "position": "0-" + str(len(signal.seq)),  # TODO generate the true offset range
                "subject": {"label": subj, "type": "person"},
-               "predicate": {"type": pred},
-               "object": {"label": obj, "type": "object"},
+               "predicate": {"label": pred},
+               "object": {"label": obj, "type": ""},
                "context_id": scenario.scenario.context,
                ##### standard elements
                "date": date.today(),
@@ -71,8 +59,8 @@ def scenario_utterance_to_capsule(scenario: Scenario,
                "country": location['country'],
                "region": location['region'],
                "city": location['city'],
-               "objects": value['objects'],
-               "people": value['people']
+               "objects":  [],
+               "people":  []
                }
     return capsule
 
@@ -86,7 +74,6 @@ def scenario_utterance_to_capsule_with_perspective(scenario: Scenario,
                                                    subj: str,
                                                    pred: str,
                                                    obj: str):
-    value = generate_obl_object_json(author)
     capsule = {"chat": scenario.id,
                "turn": signal.id,
                "author": author,
@@ -96,7 +83,6 @@ def scenario_utterance_to_capsule_with_perspective(scenario: Scenario,
                "subject": {"label": subj, "type": "person"},
                "predicate": {"type": pred},
                "object": {"label": obj, "type": "object"},
-               "perspective": perspective,
                "context_id": scenario.scenario.context,
                ##### standard elements
                "date": date.today(),
@@ -105,9 +91,13 @@ def scenario_utterance_to_capsule_with_perspective(scenario: Scenario,
                "country": location['country'],
                "region": location['region'],
                "city": location['city'],
-               "objects": value['objects'],
-               "people": value['people']
+               "objects": [],
+               "people": []
                }
+     
+    if perspective:
+        capsule['perspective'] = perspective
+        
     return capsule
 
 
@@ -121,17 +111,12 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
                                              perspective: dict,
                                              triple: dict):
     
-    value = generate_obl_object_json(author)
     capsule = {"chat": scenario.id,
                "turn": signal.id,
                "author": author,
                "utterance": seq_to_text(signal.seq),
                "utterance_type": utterance_type,
                "position": "0-" + str(len(signal.seq)),  # TODO generate the true offset range
-               "subject": {'label': triple['subject']['label'], 'type': triple['subject']['type']},
-               "predicate": {'type': triple['predicate']['label']},
-               "object": {'label': triple['object']['label'], 'type': triple['object']['type']},
-               "perspective": perspective,
                "context_id": scenario.scenario.context,
                ##### standard elements
                "date": date.today(),
@@ -140,10 +125,14 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
                "country": location['country'],
                "region": location['region'],
                "city": location['city'],
-               "objects": value['objects'],
-               "people": value['people']
+               "objects": [],
+               "people": []
                }
-
+    if triple:
+        capsule.update(rephrase_triple_json_for_capsule(triple))
+    if perspective:
+        capsule['perspective'] = perspective
+        
     return capsule
 
 
@@ -158,16 +147,10 @@ def rephrase_triple_json_for_capsule(triple: dict):
 
     if triple['subject']['type']:
         subject_type = triple['subject']['type'][0]
-        if len(subject_type.split('.')) > 1:
-            subject_type.append(subject_type.split('.')[1])
     if triple['predicate']['type']:
         predicate_type = triple['predicate']['type'][0]
-        if len(predicate_type.split('.')) > 1:
-            predicate_type = predicate_type.split('.')[1]
     if triple['object']['type']:
         object_type = triple['object']['type'][0]
-        if len(object_type.split('.')) > 1:
-            object_type.append(object_type.split('.')[1])
 
     rephrase = {
         "subject": {'label': triple['subject']['label'], 'type': subject_type},
@@ -175,6 +158,17 @@ def rephrase_triple_json_for_capsule(triple: dict):
         "object": {'label': triple['object']['label'], 'type': object_type},
     }
     return rephrase
+
+
+
+def lowcase_triple_json_for_query(capsule: dict): 
+    if capsule['subject']['label']:
+        capsule['subject']['label'] = capsule['subject']['label'].lower()
+    if capsule['predicate']['label']:
+        capsule['subject']['label'] = capsule['subject']['label'].lower()
+    if capsule['object']['label']:
+        capsule['subject']['label'] = capsule['subject']['label'].lower()
+    return capsule
 
 
 ###### Hardcoded capsule for perceivedBy triple for an ImageSignal
@@ -185,8 +179,6 @@ def scenario_image_perceivedBy_triple_to_capsule(scenario: Scenario,
                                                  author: str,
                                                  perspective: str,
                                                  triple: str):
-    value = generate_obl_object_json(author)
-    perspective = {"certainty": 1, "polarity": 1, "sentiment": 1}
 
     reference = signal.signal.id + "#" + str(signal.bounds)  # NOT ALLOWED
     capsule = {"chat": scenario.id,
@@ -194,7 +186,6 @@ def scenario_image_perceivedBy_triple_to_capsule(scenario: Scenario,
                "author": author,
                "utterance": "",
                "position": "image",
-               "perspective": perspective,  # obligatory bogus perspective
                "subject": {"label": author, "type": "person"},
                "predicate": {"type": "perceivedBy"},
                "object": {"label": reference, "type": "string"},
@@ -206,8 +197,8 @@ def scenario_image_perceivedBy_triple_to_capsule(scenario: Scenario,
                "country": location['country'],
                "region": location['region'],
                "city": location['city'],
-               "objects": value['objects'],
-               "people": value['people']
+               "objects": [],
+               "people": []
                }
 
     return capsule
@@ -221,16 +212,12 @@ def scenario_image_triple_to_capsule(scenario: Scenario,
                                      subject: str,
                                      predicate: str,
                                      object: str):
-    value = generate_obl_object_json(author)
-    perspective = {"certainty": 1, "polarity": 1, "sentiment": 1}
-    # reference = signal.signal.id+"#"+str(signal.bounds)  # not allowed
 
     capsule = {"chat": scenario.id,
                "turn": signal.id,
                "author": author,
                "utterance": "",
                "position": "image",
-               "perspective": perspective,  # obligatory bogus perspective
                "subject": {"label": subject, "type": "person"},
                "predicate": {"type": predicate},
                "object": {"label": object, "type": "string"},
@@ -242,8 +229,8 @@ def scenario_image_triple_to_capsule(scenario: Scenario,
                "country": location['country'],
                "region": location['region'],
                "city": location['city'],
-               "objects": value['objects'],
-               "people": value['people']
+               "objects": [],
+               "people": []
                }
 
     return capsule
