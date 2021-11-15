@@ -89,7 +89,8 @@ def process_text_and_reply(scenario: Scenario,
                            textSignal: TextSignal,
                            chat: Chat,
                            replier: LenkaReplier,
-                           my_brain: LongTermMemory):
+                           my_brain: LongTermMemory,
+                           print_details:False):
     reply = None
     capsule = None
     
@@ -110,6 +111,14 @@ def process_text_and_reply(scenario: Scenario,
                                                                   chat.last_utterance.perspective,
                                                                   chat.last_utterance.triple)
 
+        if print_details:
+            print('Triple:')
+            pprint.pprint(chat.last_utterance.triple)
+            print('Perspective:')
+            pprint.pprint(chat.last_utterance.perspective)
+            print('Capsule:')
+            pprint.pprint(capsule)
+        
         if chat.last_utterance.type == UtteranceType.QUESTION:
             capsule = c_util.lowcase_triple_json_for_query(capsule)
             response = my_brain.query_brain(capsule)

@@ -11,24 +11,6 @@ def seq_to_text(seq):
         text += c
     return text
 
-### OBSOLETE
-def serialise_perspective(perspective:dict):
-        sentiment = ""
-        polarity = ""
-        emotion = ""
-        if perspective['sentiment']:
-            sentiment = perspective['sentiment']
-        if perspective['polarity']:
-            polarity = perspective['polarity']
-        if perspective['emotion']:
-            emotion = perspective['emotion']
-        rephrase = {'perspective': {
-            "sentiment":sentiment,
-            "polarity": polarity,
-            "emotion": emotion
-        }}
-        
-        return rephrase
 
 def triple_to_capsule (triple: str, utterance_type:UtteranceType):
     capsule = {"chat": "1",
@@ -48,7 +30,8 @@ def triple_to_capsule (triple: str, utterance_type:UtteranceType):
                "people": []
                }
     if triple:
-        capsule.update(rephrase_triple_json_for_capsule(triple))       
+        capsule.update(rephrase_triple_json_for_capsule(triple))  
+        
     return capsule    
 
 def scenario_utterance_to_capsule(scenario: Scenario,
@@ -113,8 +96,7 @@ def scenario_utterance_to_capsule_with_perspective(scenario: Scenario,
                }
      
     if perspective:
-        capsule.update(serialise_perspective(perspective))
-
+        capsule['perspective'] = perspective
         
     return capsule
 
@@ -149,7 +131,7 @@ def scenario_utterance_and_triple_to_capsule(scenario: Scenario,
     if triple:
         capsule.update(rephrase_triple_json_for_capsule(triple))
     if perspective:
-        capsule.update(serialise_perspective(perspective))
+        capsule['perspective'] = perspective
         
     return capsule
 
