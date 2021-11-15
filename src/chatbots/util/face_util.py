@@ -1,25 +1,23 @@
-import jsonpickle
-import python_on_whales
-import requests
-import numpy as np
-import pickle
-import time
-from PIL import Image, ImageDraw, ImageFont
-from glob import glob
 import logging
 import os
+import pickle
 import uuid
-import platform
-from emissor.representation.scenario import (
-    Modality,
-    ImageSignal,
-    TextSignal,
-    Mention,
-    Annotation,
-    Scenario,
-)
+from collections import namedtuple
+from glob import glob
+from typing import Tuple
+
+import jsonpickle
+import numpy as np
+import python_on_whales
+import requests
+import time
+from PIL import Image
+from emissor.representation.annotation import AnnotationType
+from emissor.representation.entity import Gender, Person
+from emissor.representation.ldschema import emissor_dataclass
+from emissor.representation.scenario import ImageSignal, Mention, Annotation
+
 from .cv.plots import Annotator, Colors
-import random
 
 logging.basicConfig(
     level=os.environ.get("LOGLEVEL", "INFO").upper(),
@@ -382,14 +380,22 @@ def annotate_face(
     return image_annotated
 
 
-def do_stuff_with_image(
+FaceInfo = namedtuple('FaceInfo', ('gender',
+                                   'age',
+                                   'bbox',
+                                   'face_id',
+                                   'det_score',
+                                   'embedding',
+                                   'yolo_result'))
+
+def detect_faces(
     friends_path: str,
     image_path: str,
     url_face: str = "http://127.0.0.1:10002/",
     url_age_gender: str = "http://127.0.0.1:10003/",
     url_yolo: str = "http://127.0.0.1:10004",
-) -> tuple:
-    """Do stuff with image.
+) -> Tuple[FaceInfo]:
+    """Detect faces in an image.
 
     Args
     ----
@@ -400,13 +406,7 @@ def do_stuff_with_image(
 
     Returns
     -------
-    genders
-    ages
-    face_bboxes
-    faces_detected
-    det_scores
-    embeddings
-
+    List[FaceInfo]
     """
     MAXIMUM_ENTROPY = {"gender": 0.6931471805599453, "age": 4.615120516841261}
 
@@ -431,51 +431,34 @@ def do_stuff_with_image(
     image.save(image_path)
     logging.info(f"image saved at {image_path}")
 
-    return (
-        genders,
-        ages,
-        face_bboxes,
-        faces_detected,
-        det_scores,
-        embeddings,
-        yolo_results,
-    )
+    return tuple(FaceInfo(*info) for info in zip(genders,
+                                          ages,
+                                          face_bboxes,
+                                          faces_detected,
+                                          det_scores,
+                                          embeddings,
+                                          yolo_results))
 
 
-def add_face_annotation(
-    imageSignal: ImageSignal,
-    container_id: str,
-    source: str,
-    mention_id: str,
-    current_time: str,
-    face_bbox,
-    uri: str,
-    name: str,
-    age: str,
-    gender: str,
-    faceprob: str,
-):
+def create_face_mention(image_signal: ImageSignal,
+                        source: str,
+                        current_time: int,
+                        bbox: Tuple[int, int , int, int],
+                        uri: str,
+                        name: str,
+                        age: str,
+                        gender: str,
+                        face_prob: float) -> Mention:
+    bbox = [max(x, lower) for x, lower in zip(bbox[:2], image_signal.ruler.bounds[:2])] + \
+            [min(x, upper) for x, upper in zip(bbox[-2:], image_signal.ruler.bounds[-2:])]
+    face_segment = image_signal.ruler.get_area_bounding_box(*bbox)
+    face_annotation = Annotation(AnnotationType.PERSON.name,
+                                 FacePerson(uri, name, age, Gender[gender.upper()], face_prob),
+                                 source, current_time)
 
-    annotations = []
-    annotations.append(
-        {
-            "source": source,
-            "timestamp": current_time,
-            "type": "person",
-            "value": {
-                "uri": uri,
-                "name": name,
-                "age": age,
-                "gender": gender,
-                "faceprob": faceprob,
-            },
-        }
-    )
+    return Mention(str(uuid.uuid4()), [face_segment], [face_annotation])
 
-    mention_id = str(uuid.uuid4())
-    segment = [
-        {"bounds": face_bbox, "container_id": container_id, "type": "MultiIndex"}
-    ]
-    imageSignal.mentions.append(
-        {"annotations": annotations, "id": mention_id, "segment": segment}
-    )
+
+@emissor_dataclass(namespace="http://cltl.nl/leolani/n2mu")
+class FacePerson(Person):
+    face_prob: float

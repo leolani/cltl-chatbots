@@ -139,17 +139,14 @@ cython_debug/
 
 # Jupyter Notebook and cache
 .ipynb_checkpoints
-src/*/__pycache__/*
+src/**/__pycache__
 
 # Virtual environment
 /venv*/
 
-# Scenarion folders in the data folder
-data/*/*
-friend_embeddings/*
 *.trig
 
 # MAc files
-.idea/*
+.idea
 .DS_Store
 
