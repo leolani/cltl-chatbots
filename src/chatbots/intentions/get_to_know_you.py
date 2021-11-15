@@ -60,7 +60,8 @@ def get_to_know_person(scenario_ctrl: ScenarioController, agent:str, gender:str,
         scenario_ctrl.append_signal(textSignal)
         
         human_name, human_id =get_a_name_and_id(scenario_ctrl, agent)
- 
+        human_id = human_name  ### Hack because we cannot force the namespace through capsules, name and identity are the same till this is fixed
+
         #### We create the embedding
         to_save = {"uuid": uuid_name["uuid"], "embedding": embedding}
         new_friends_embedding_path = friends_path+f"/{human_id}.pkl"
