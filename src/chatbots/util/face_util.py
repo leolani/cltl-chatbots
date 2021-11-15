@@ -458,7 +458,6 @@ def create_face_mention(image_signal: ImageSignal,
 
     return Mention(str(uuid.uuid4()), [face_segment], [face_annotation])
 
-
 @emissor_dataclass(namespace="http://cltl.nl/leolani/n2mu")
 class FacePerson(Person):
     face_prob: float
