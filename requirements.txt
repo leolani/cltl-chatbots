@@ -16,3 +16,4 @@ matplotlib
 seaborn
 torchvision
 matplotlib
+gTTS
