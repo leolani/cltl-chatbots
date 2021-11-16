@@ -462,13 +462,14 @@ def create_object_mention(image_signal: ImageSignal,
                         source: str,
                         current_time: int,
                         bbox: Tuple[int, int , int, int],
-                        name: str) -> Mention:
+                        name: str,
+                        obj_prob: float) -> Mention:
     bbox = [max(x, lower) for x, lower in zip(bbox[:2], image_signal.ruler.bounds[:2])] + \
             [min(x, upper) for x, upper in zip(bbox[-2:], image_signal.ruler.bounds[-2:])]
     object_segment = image_signal.ruler.get_area_bounding_box(*bbox)
     object_annotation = Annotation(AnnotationType.OBJECT,
                                  ImageObject(name),
-                                 source, current_time)
+                                 source, current_time, obj_prob)
 
     return Mention(str(uuid.uuid4()), [object_segment], [object_annotation])
 
@@ -477,4 +478,4 @@ class FacePerson(Person):
     face_prob: float
         
 class ImageObject(Object):
-    face_prob: float
+    obj_prob: float
