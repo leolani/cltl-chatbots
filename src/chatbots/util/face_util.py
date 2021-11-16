@@ -13,7 +13,7 @@ import requests
 import time
 from PIL import Image
 from emissor.representation.annotation import AnnotationType
-from emissor.representation.entity import Gender, Person
+from emissor.representation.entity import Gender, Person, Object
 from emissor.representation.ldschema import emissor_dataclass
 from emissor.representation.scenario import ImageSignal, Mention, Annotation
 
@@ -458,6 +458,23 @@ def create_face_mention(image_signal: ImageSignal,
 
     return Mention(str(uuid.uuid4()), [face_segment], [face_annotation])
 
+def create_object_mention(image_signal: ImageSignal,
+                        source: str,
+                        current_time: int,
+                        bbox: Tuple[int, int , int, int],
+                        name: str) -> Mention:
+    bbox = [max(x, lower) for x, lower in zip(bbox[:2], image_signal.ruler.bounds[:2])] + \
+            [min(x, upper) for x, upper in zip(bbox[-2:], image_signal.ruler.bounds[-2:])]
+    object_segment = image_signal.ruler.get_area_bounding_box(*bbox)
+    object_annotation = Annotation(AnnotationType.OBJECT,
+                                 ImageObject(name),
+                                 source, current_time)
+
+    return Mention(str(uuid.uuid4()), [object_segment], [object_annotation])
+
 @emissor_dataclass(namespace="http://cltl.nl/leolani/n2mu")
 class FacePerson(Person):
+    face_prob: float
+        
+class ImageObject(Object):
     face_prob: float
