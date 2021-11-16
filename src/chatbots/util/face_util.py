@@ -458,6 +458,7 @@ def create_face_mention(image_signal: ImageSignal,
 
     return Mention(str(uuid.uuid4()), [face_segment], [face_annotation])
 
+
 def create_object_mention(image_signal: ImageSignal,
                         source: str,
                         current_time: int,
@@ -467,15 +468,18 @@ def create_object_mention(image_signal: ImageSignal,
     bbox = [max(x, lower) for x, lower in zip(bbox[:2], image_signal.ruler.bounds[:2])] + \
             [min(x, upper) for x, upper in zip(bbox[-2:], image_signal.ruler.bounds[-2:])]
     object_segment = image_signal.ruler.get_area_bounding_box(*bbox)
-    object_annotation = Annotation(AnnotationType.OBJECT,
-                                 ImageObject(name),
-                                 source, current_time, obj_prob)
+    object_annotation = Annotation(AnnotationType.OBJECT.name,
+                                 ImageObject(str(uuid.uuid4()), name, obj_prob),
+                                 source, current_time)
 
     return Mention(str(uuid.uuid4()), [object_segment], [object_annotation])
+
 
 @emissor_dataclass(namespace="http://cltl.nl/leolani/n2mu")
 class FacePerson(Person):
     face_prob: float
-        
+
+
+@emissor_dataclass(namespace="http://cltl.nl/leolani/n2mu")
 class ImageObject(Object):
     obj_prob: float
