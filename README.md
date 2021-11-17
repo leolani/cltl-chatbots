@@ -27,6 +27,19 @@ https://graphdb.ontotext.com
 After installing GraphDB you need to launch and create a repository with the name `sandbox`. This repository will be
 used as the BRAIN.
 
+Furthermore, some of the application use docker repositories for sensor data processing suc as face and object detection.
+For this, you need to install Docker desktop.  You can follow the instructions on this page: https://www.docker.com/products/docker-desktop
+
+After installing docker desktop, we advise you to pull the docker images for sensor processing before you start. The images are rather big.
+Use the docker pull command from the command line:
+
+* docker pull tae898/yolov5 (15.84GB): object detection
+* docker pull tae898/age-gender:v0.2 (4.96GB): face properties
+* docker pull tae898/face-detection-recognition:v0.1 (2.9GB): face identitification
+
+Once the docker images are loaded and running in your Docker desktop they are available to make calls from the notebooks and other code.
+
+
 ## Installing
 
 In order to install the packages you should do the following from the terminal:
