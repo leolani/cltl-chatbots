@@ -311,7 +311,7 @@ def annotate_yolo(image: Image.Image, yolo_results: list) -> Image.Image:
     image_annotated: Annotated PIL image object.
 
     """
-    logging.debug("Annotaing yolo image ...")
+    logging.debug("Annotating yolo image ...")
     annotator = Annotator(np.ascontiguousarray((image)))
     colors = Colors()  # create instance for 'from utils.plots import colors'
 
@@ -438,6 +438,40 @@ def detect_faces(
                                           det_scores,
                                           embeddings,
                                           yolo_results))
+
+
+
+def detect_objects(
+    image_path: str,
+    url_yolo: str = "http://127.0.0.1:10004",
+):
+    """Detect objects in an image.
+
+    Args
+    ----
+    image_path: path to the image in disk
+    url_yolo: the url of the YOLO5 API server
+
+    Returns
+    -------
+    List[ObjectInfo]
+    """
+
+    data = {"image": load_binary_image(image_path)}
+
+    yolo_results = run_yolo_api(data, url_yolo)
+
+    logging.debug("annotating image ...")
+    image = Image.open(image_path)
+    image = annotate_yolo(image, yolo_results)
+    logging.info("image annotation is done!")
+
+    image_path = image_path + ".ANNOTATED.jpg"
+    logging.debug(f"saving image at {image_path}...")
+    image.save(image_path)
+    logging.info(f"image saved at {image_path}")
+
+    return yolo_results
 
 
 def create_face_mention(image_signal: ImageSignal,
