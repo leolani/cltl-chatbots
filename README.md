@@ -102,10 +102,21 @@ jupyter lab
 ```
 Select kernel venv for each notebook
 
+## Contributing
+
+Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
 ## References
 
 When using this code please make reference to the following papers:
 
+```bibtex
 @article{santamaria2021emissor, title={EMISSOR: A platform for capturing multimodal interactions as Episodic Memories
 and Interpretations with Situated Scenario-based Ontological References}, author={Santamar{\'\i}a, Selene B{\'a}ez and
 Baier, Thomas and Kim, Taewoon and Krause, Lea and Kruijt, Jaap and Vossen, Piek}, booktitle={Processings of the MMSR
@@ -125,3 +136,4 @@ organization={Springer} }
   year={2019},
   organization={CEUR-WS}
 }
+```
