@@ -34,3 +34,22 @@ def add_ner_annotation_with_spacy(signal: TextSignal, nlp):
                             for segment, annotation in zip(segments, ner_annotations)])
     # print(entity_list)
     return entity_list
+
+def add_source_and_token_annotation_with_spacy(signal: TextSignal, speaker: str, nlp):
+    processor_name = "spaCy"
+    utterance = ''.join(signal.seq)
+
+    doc = nlp(utterance)
+
+    offsets, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
+                            for token in doc])
+
+    segments = [token.ruler for token in tokens]
+
+    current_time = int(time.time() * 1e3)
+    annotations = [Annotation(AnnotationType.TOKEN.name.lower(), token, processor_name, current_time)
+                   for token in tokens]
+ 
+    signal.mentions.extend([Mention(str(uuid.uuid4()), [offset], [annotation])
+                            for offset, annotation in zip(offsets, annotations)])
+ 

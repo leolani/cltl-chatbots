@@ -3,8 +3,9 @@ from typing import Tuple
 
 import time
 from emissor.persistence import ScenarioStorage
-from emissor.representation.scenario import ImageSignal, TextSignal, Scenario, Modality
-
+from emissor.representation.scenario import ImageSignal, TextSignal, Scenario, Modality, Mention, Annotation
+from emissor.representation.annotation import AnnotationType, Token, NER
+from emissor.representation.container import Index
 
 def relative_path(modality: Modality, file_name: str) -> str:
     rel_path = os.path.join(modality.name.lower())
