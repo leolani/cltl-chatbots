@@ -102,6 +102,10 @@ jupyter lab
 ```
 Select kernel venv for each notebook
 
+## Troubling shooting
+The code has been developed and tested on Mac OS and Linux. Some issues may arise when installing and running on Windows 10.
+You can consult the trouble shooting document for solutions: [TROUBLESHOOTING.md]<TROUBLESHOOTING.md>
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
