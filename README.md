@@ -44,13 +44,14 @@ Once the docker images are loaded and running in your Docker desktop they are av
 
 In order to install the packages you should do the following from the terminal:
 
-1. Clone this repo and do the following commands from the terminal:
+<ol>
+<li> Clone this repo and do the following commands from the terminal:
 
 ``` python
 git clone git@github.com:leolani/cltl-chatbots.git
 ```
 
-1. "cd" to clt-chatbots where the code is cloned and create a virtual environment within your cloned folder for
+<li> "cd" to clt-chatbots where the code is cloned and create a virtual environment within your cloned folder for
    installing all required packages and modules. 
    
 ``` python
@@ -70,26 +71,27 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-1. We need to make the virtual environment `venv` known to Jupyter notebooks. For this do the following:
+<li> We need to make the virtual environment `venv` known to Jupyter notebooks. For this do the following:
 
 ``` python
 pip install ipykernel
 python -m ipykernel install --user --name=venv
 ```
 
-1. Now we are ready to install the main packages `emissor` and the `brain` and al other dependent packages:
+<li> Now we are ready to install the main packages `emissor` and the `brain` and al other dependent packages:
 
 ``` python
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-1. [OPTIONAL] Some notebooks use spaCy. Download the appropriate language model for spaCy before starting within the
+<li> [OPTIONAL] Some notebooks use spaCy. Download the appropriate language model for spaCy before starting within the
    `venv`:
 
 ``` python
 python -m spacy download en_core_web_sm
 ```
+</ol>
 
 When there are no error messages you can launch jupyter to load the notebooks.
 
