@@ -27,26 +27,37 @@ import chatbots.util.capsule_util as c_util
 
 def post_a_triple(triple, my_brain: LongTermMemory):
     response_json = None
+    response = None
     capsule = c_util.triple_to_capsule(triple, UtteranceType.STATEMENT)
-    response = my_brain.update(capsule)
-    response_json = brain_response_to_json(response)
+    try:
+        response = my_brain.update(capsule)
+        response_json = brain_response_to_json(response)
+    except:
+        print('Error:', response)
     return capsule, response_json
 
 def post_a_triple_label_and_type(triple, my_brain: LongTermMemory):
     response_json = None
+    response = None
     capsule = c_util.triple_to_capsule(triple, UtteranceType.STATEMENT)
-    response = my_brain.update(capsule, reason_types=True, create_label=True)
-    response_json = brain_response_to_json(response)
+    try:
+        response = my_brain.update(capsule, reason_types=True, create_label=True)
+        response_json = brain_response_to_json(response)
+    except:
+        print('Error:', response)
     return capsule, response_json
 
 def post_a_triple_and_verbalise_throughts(triple, replier: LenkaReplier, my_brain: LongTermMemory):
     reply = None
+    response = None
     capsule = c_util.triple_to_capsule(triple, UtteranceType.STATEMENT)
-    print(capsule)
-    response = my_brain.update(capsule) # ADDITIONAL PARAMTERS reason_types=True, create_label=False
-    response_json = brain_response_to_json(response)
-    reply = replier.reply_to_statement(response_json) # ADDITIONAL PARAMETERS proactive=True, persist=True
-    
+    #print(capsule)
+    try:
+        response = my_brain.update(capsule) # ADDITIONAL PARAMTERS reason_types=True, create_label=False
+        response_json = brain_response_to_json(response)
+        reply = replier.reply_to_statement(response_json) # ADDITIONAL PARAMETERS proactive=True, persist=True
+    except:
+        print('Error:', response)
     if reply is None:
         reply = choice(ELOQUENCE)
 
@@ -54,24 +65,32 @@ def post_a_triple_and_verbalise_throughts(triple, replier: LenkaReplier, my_brai
 
 def post_a_query(triple,my_brain: LongTermMemory):
     response_json = None
+    response = None
 
     capsule = c_util.triple_to_capsule(triple, UtteranceType.QUESTION)
-    print(capsule)
-    response = my_brain.query_brain(capsule)
-    response_json = brain_response_to_json(response)
-
+    #print(capsule)
+    try:
+        response = my_brain.query_brain(capsule)
+        response_json = brain_response_to_json(response)
+    except:
+        print('Error:', response)
+        
     return response_json
 
 
 def post_a_query_and_verbalise_answer(triple, replier: LenkaReplier, my_brain: LongTermMemory):
     reply = None
+    response = None
 
     capsule = c_util.triple_to_capsule(triple, UtteranceType.QUESTION)
-    print(capsule)
-    response = my_brain.query_brain(capsule)
-    response_json = brain_response_to_json(response)
-    reply = replier.reply_to_question(response_json)
-
+    #print(capsule)
+    try:
+        response = my_brain.query_brain(capsule)
+        response_json = brain_response_to_json(response)
+        reply = replier.reply_to_question(response_json)
+    except:
+        print('Error:', response)
+        
     if reply is None:
         reply = choice(ELOQUENCE)
 
@@ -93,6 +112,7 @@ def process_text_and_reply(scenario: Scenario,
                            print_details:False):
     reply = None
     capsule = None
+    response = None
     
     chat.add_utterance([UtteranceHypothesis(c_util.seq_to_text(textSignal.seq), 1.0)])
     chat.last_utterance.analyze()
@@ -121,15 +141,19 @@ def process_text_and_reply(scenario: Scenario,
         
         if chat.last_utterance.type == UtteranceType.QUESTION:
             capsule = c_util.lowcase_triple_json_for_query(capsule)
-            response = my_brain.query_brain(capsule)
-            response_json = brain_response_to_json(response)
-            reply = replier.reply_to_question(response_json)
-
+            try:
+                response = my_brain.query_brain(capsule)
+                response_json = brain_response_to_json(response)
+                reply = replier.reply_to_question(response_json)
+            except:
+                print('Error:', response)
         if chat.last_utterance.type == UtteranceType.STATEMENT:
-            response = my_brain.update(capsule, reason_types=True, create_label=True)
-            response_json = brain_response_to_json(response)
-            reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
-
+            try:
+                response = my_brain.update(capsule, reason_types=True, create_label=True)
+                response_json = brain_response_to_json(response)
+                reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
+            except:
+                print('Error:', response)
 
     return capsule, reply
 
