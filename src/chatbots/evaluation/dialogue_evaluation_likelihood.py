@@ -21,9 +21,7 @@ class USR_MLM:
         self.__model.top_k = top_results  ### we check against the top results
 
 
-    def mask_target_sentence(self, pair:[]):
-        context = pair[0]
-        target = pair[1]
+    def mask_target_sentence(self, context, target):
         masked_targets = []
         target_tokens = re.split(' ', target)
         for index, token in enumerate(target_tokens):
@@ -37,8 +35,8 @@ class USR_MLM:
         return masked_targets, target_tokens
 
 
-    def sentence_likelihood(self, pair: []):
-        masked_targets, target_tokens = self.mask_target_sentence(pair)
+    def sentence_likelihood(self, context, target):
+        masked_targets, target_tokens = self.mask_target_sentence(context, target)
         expected_target = ""
         max_scores = []
         scores = []
@@ -60,14 +58,14 @@ class USR_MLM:
 
         return likelihood, expected_target, max_likelihood
 
-    def score_pairs_for_likelihood(self, pairs:[]):
-        for pair in pairs:
-            llh, best_sentence, max_score = self.sentence_likelihood(self, pair)
-            print(pair)
+    def score_pairs_for_likelihood(self, turns:[]):
+        for context, target in turns:
+            llh, best_sentence, max_score = self.sentence_likelihood(self, context, target)
+            print(turn)
             print('Likelihood:', llh, 'Max score:', max_score, 'Best sentence:', best_sentence)
 
 if __name__ == "__main__":
-    pairs = [('Do you have a cat?', 'I do not have a cat'),  # good
+    turns = [('Do you have a cat?', 'I do not have a cat'),  # good
              ('Do you have a cat?', 'I like cats'),  # not as good
              ('Do you have a cat?', 'I like kittens'),  # worse
              ('Do you have a cat?', 'I want a turtle')]  # what are we even saying
@@ -77,7 +75,7 @@ if __name__ == "__main__":
     model_path = 'xlm-roberta-base'
     model_path = 'roberta-base'
     model_mlm = USR_MLM(model_path, top_results)
-    for pair in pairs:
-        llh, best_sentence, max_score = model_mlm.sentence_likelihood(pair)
-        print(pair)
+    for context, target in turns:
+        llh, best_sentence, max_score = model_mlm.sentence_likelihood(context, target)
+        print(turn)
         print('Likelihood:', llh, 'Max score:', max_score, 'Best sentence:', best_sentence)

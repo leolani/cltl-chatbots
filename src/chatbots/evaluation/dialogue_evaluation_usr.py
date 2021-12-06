@@ -1,7 +1,8 @@
 
 from transformers import RobertaForSequenceClassification, RobertaTokenizer, RobertaConfig
 
-##Credits:this code was created by Thomas Bellucci
+#Credits:
+# This code was created by Thomas Bellucci
 
 import numpy as np
 import torch
