@@ -23,9 +23,6 @@ def get_context_target_pairs_from_signals(signals:[]):
 
 if __name__ == "__main__":
 
-    CTX=False
-    UK=False
-    MLM=False
     metric=None
     top=20
     scenario_path=None
