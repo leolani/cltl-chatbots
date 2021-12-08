@@ -19,14 +19,29 @@ import getopt
 
 
 
-
+def get_speaker_from_text_signal(textSignal:TextSignal):
+    speaker = None
+    mentions = textSignal.mentions
+    for mention in mentions:
+        annotations = mention.annotations
+        for annotation in annotations:
+            if annotation[0].type=="utterance":
+                speaker = annotation[0].source
+                break
+        if speaker:
+            break
+    return speaker
 
 def get_turns_with_context_from_signals(signals:[], max_context=200):
-    triples = []
+    quadruples = []
+    speakers=set()
     context = ""
     target = ""
     cue =""
     for index, signal in enumerate(signals):
+        speaker = get_speaker_from_text_signal(signal)
+        if speaker:
+            speakers.add(speaker)
         if index == 0:
             target = ''.join(signal.seq)
         else:
@@ -35,9 +50,10 @@ def get_turns_with_context_from_signals(signals:[], max_context=200):
             target = ''.join(signal.seq)
         if len(context)>max_context:
             context = context[len(context)-max_context:]
-        triple = (context, target, cue)
-        triples.append(triple)
-    return triples
+        quadruple = (context, target, cue, speaker)
+        quadruples.append(quadruple)
+    return quadruples, speakers
+
 
 if __name__ == "__main__":
 
@@ -86,42 +102,41 @@ if __name__ == "__main__":
     scenario_ctrl = scenarioStorage.load_scenario(scenario_id)
     signals = scenario_ctrl.get_signals(Modality.TEXT)
 
-    turns = get_turns_with_context_from_signals(signals, max_context)
+    turns, speakers = get_turns_with_context_from_signals(signals, max_context)
     print('Nr of turns:', len(turns), ' extracted from scenario: ', scenario_id)
 
     if metric=="CTX" or metric=="ALL":
-        scores = []
-        even_scores=[]
-        odd_scores=[]
+        print('Metric:', "CTX")
+        speaker_turns = {k: [] for k in speakers}
+        speaker_ctx_scores = {k: [] for k in speakers}
+
         model_path_ctx = 'adamlin/usr-topicalchat-ctx'
         model_ctx = USR_CTX(path=model_path_ctx)
         for index, turn in enumerate(turns):
             context = turn[0]
             target = turn[1]
             cue = turn[2]
-            print('Context score:', score, '\t', context, response)
-            scores.append(score)
-            if index % 2 == 0:
-                even_scores.append(score)
-            else:
-                odd_scores.append(score)
+            speaker = turn[3]
+            score = model_ctx.MCtx(context, target)
+            print('Context score:', score, '\t', speaker, context, target)
+            if speaker:
+                speaker_turns[speaker].append(index)
+                speaker_ctx_scores[speaker].append(score)
 
-        average_score = sum(scores) / len(scores)
-        print('\nAverage score:', average_score)
-        print('Sequence profile:', scores)
+        for speaker in speakers:
+            scores = speaker_ctx_scores[speaker]
+            average_score = sum(scores) / len(scores)
+            print('\nSpeaker:', speaker, ' # turns:', len(speaker_turns[speaker]))
+            print('Average score:', average_score)
+            print('Sequence profile:', scores)
 
-        average_even_score = sum(even_scores) / len(even_scores)
-        print('\nAverage odd score:', average_even_score)
-        print('Even sequence profile:', even_scores)
-
-        average_odd_score = sum(odd_scores) / len(odd_scores)
-        print('\nAverage odd score:', average_odd_score)
-        print('Odd sequence profile:', odd_scores)
 
     if metric=="UK" or metric=="ALL":
-        scores = []
-        odd_scores=[]
-        even_scores=[]
+        print('Metric:', "UK")
+
+        speaker_turns = {k: [] for k in speakers}
+        speaker_uk_scores = {k: [] for k in speakers}
+
         model_path_uk = 'adamlin/usr-topicalchat-uk'
         model_uk = USR_CTX(path=model_path_uk)
 
@@ -129,32 +144,26 @@ if __name__ == "__main__":
             context = turn[0]
             target = turn[1]
             cue=turn[2]
-            print('Context score:', score, '\t', context, response)
-            scores.append(score)
-            if index % 2 == 0:
-                even_scores.append(score)
-            else:
-                odd_scores.append(score)
+            speaker= turn[3]
+            score = model_uk.MCtx(context, target)
+            print('Context score:', score, '\t', speaker, context, target)
+            if speaker:
+                speaker_turns[speaker].append(index)
+                speaker_uk_scores[speaker].append(score)
 
-        average_score = sum(scores)/len(scores)
-        print('\nAverage score:', average_score)
-        print('Sequence profile:', scores)
-
-        average_even_score = sum(even_scores) / len(even_scores)
-        print('\nAverage odd score:', average_even_score)
-        print('Even sequence profile:', even_scores)
-
-        average_odd_score = sum(odd_scores) / len(odd_scores)
-        print('\nAverage odd score:', average_odd_score)
-        print('Odd sequence profile:', odd_scores)
+        for speaker in speakers:
+            scores = speaker_uk_scores[speaker]
+            average_score = sum(scores) / len(scores)
+            print('\nSpeaker:', speaker, ' # turns:', len(speaker_turns[speaker]))
+            print('Average score:', average_score)
+            print('Sequence profile:', scores)
 
     if metric=="MLM" or metric=="ALL":
-        scores = []
-        max_scores=[]
-        odd_scores=[]
-        odd_max_scores=[]
-        even_scores=[]
-        even_max_scores=[]
+        print('Metric:', "MLM")
+
+        speaker_mlm_scores = {k: [] for k in speakers}
+        speaker_mlm_max_scores = {k: [] for k in speakers}
+        speaker_turns = {k: [] for k in speakers}
 
         model_path_mlm = 'adamlin/usr-topicalchat-roberta_ft'
         model_mlm = USR_MLM(path=model_path_mlm, top_results=top)
@@ -162,45 +171,31 @@ if __name__ == "__main__":
             context = turn[0]
             target = turn[1]
             cue=turn[2]
+            speaker = turn[3]
             llh, best_sentence, max_score = model_mlm.sentence_likelihood(context,target)
             print('Turn:', index)
+            print('Speaker:', speaker)
             print('Input:', cue)
             print('Response', target)
             print('\tLikelihood:', llh)
             print('Best model response', best_sentence)
             print('\tMax score:', max_score)
-            scores.append(llh)
-            max_scores.append(max_score)
 
-            if index % 2 == 0:
-                even_scores.append(llh)
-                even_max_scores.append(max_score)
-            else:
-                odd_scores.append(llh)
-                odd_max_scores.append(max_score)
+            if speaker:
+                speaker_turns[speaker].append(index)
+                speaker_mlm_scores[speaker].append(llh)
+                speaker_mlm_max_scores[speaker].append(max_score)
 
+        for speaker in speakers:
+            scores = speaker_mlm_scores[speaker]
+            average_score = sum(scores) / len(scores)
 
-        average_score = sum(scores)/len(scores)
-        print('\nAverage score:', average_score)
-        print('Sequence profile:', scores)
+            max_scores = speaker_mlm_max_scores[speaker]
+            average_max_score = sum(max_scores) / len(max_scores)
+            print('\nSpeaker:', speaker, ' # turns:', len(speaker_turns[speaker]))
+            print('Average score:', average_score)
+            print('Sequence profile:', scores)
+            print('Average max score:', average_max_score)
+            print('Sequence max profile:', max_scores)
 
-        average_max_score = sum(max_scores)/len(max_scores)
-        print('\nAverage max score:', average_max_score)
-        print('Sequence max profile:', max_scores)
-
-        average_even_score = sum(even_scores) / len(even_scores)
-        print('\nAverage even score:', average_even_score)
-        print('Even sequence profile:', even_scores)
-
-        average_max_even_score = sum(odd_max_scores) / len(even_max_scores)
-        print('\nAverage max even score:', average_max_score)
-        print('Max even sequence max profile:', even_max_scores)
-
-        average_odd_score = sum(odd_scores) / len(odd_scores)
-        print('\nAverage odd score:', average_odd_score)
-        print('Odd sequence profile:', odd_scores)
-
-        average_max_odd_score = sum(odd_max_scores) / len(odd_max_scores)
-        print('\nAverage max odd score:', average_max_odd_score)
-        print('Max odd sequence max profile:', odd_max_scores)
 
