@@ -108,6 +108,8 @@ Select kernel venv for each notebook
 The code has been developed and tested on Mac OS and Linux. Some issues may arise when installing and running on Windows 10.
 You can consult the trouble shooting document for solutions: [TROUBLESHOOTING.md]<TROUBLESHOOTING.md>
 
+The best way to find and solve your problems is to see in the github issue tab. If you can't find what you want, feel free to raise an issue. We are pretty responsive.
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
