@@ -4,7 +4,7 @@ cltl.brain==0.0.dev7
 cltl.combot==0.0.dev1
 cltl.asr[impl]==0.0.dev4
 cltl.vad[impl]==0.0.dev1
-cltl.backend[impl,host]==0.0.dev2
+cltl.backend[impl,host]==0.0.dev3
 cltl.reply-generation==0.0.dev8
 cltl.triple-extraction==0.0.dev6
 emissor==0.0.dev5
