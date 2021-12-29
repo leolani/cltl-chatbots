@@ -127,12 +127,12 @@ def add_np_annotation_with_spacy(signal: TextSignal, nlp,  SPEAKER: str, HEARER:
     if speaker_tokens:
         segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
                             for token in speaker_tokens])
-        annotate_tokens(signal, speaker_mentions, segments,AnnotationType.NER.name, processor_name)
+        annotate_tokens(signal, speaker_mentions, segments,AnnotationType.LINK.name, processor_name)
 
     if hearer_tokens:
         segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
                             for token in hearer_tokens])
-        annotate_tokens(signal, hearer_mentions, segments,AnnotationType.NER.name, processor_name)
+        annotate_tokens(signal, hearer_mentions, segments,AnnotationType.LINK.name, processor_name)
 
     return subjects_and_objects
 
@@ -210,12 +210,12 @@ def get_subj_amod_triples_with_spacy(signal: TextSignal, nlp, SPEAKER, HEARER):
         if speaker_tokens:
             segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
                                 for token in speaker_tokens])
-            annotate_tokens(signal, speaker_mentions, segments,AnnotationType.NER.name, processor_name)
+            annotate_tokens(signal, speaker_mentions, segments,AnnotationType.LINK.name, processor_name)
 
         if hearer_tokens:
             segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
                                 for token in hearer_tokens])
-            annotate_tokens(signal, hearer_mentions, segments,AnnotationType.NER.name, processor_name)
+            annotate_tokens(signal, hearer_mentions, segments,AnnotationType.LINK.name, processor_name)
 
     
     print('Triples subj - aux - amod', triples)
