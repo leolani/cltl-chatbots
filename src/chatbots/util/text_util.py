@@ -9,37 +9,64 @@ from emissor.representation.container import Index
 from emissor.representation.scenario import TextSignal, Mention, Annotation
 
 
+
+def annotate_tokens(signal: TextSignal, token_text_list, segments, annotationType:str, processor_name:str):
+
+        """
+         given a TextSignal and a list of spaCy tokens and a corresponding list of segments, annotate the segments in the signal with a label (annotationType)
+        """
+
+        current_time = int(time.time() * 1e3)        
+
+        annotations = [Annotation(annotationType.lower(), token_text, processor_name, current_time)
+                       for token_text in token_text_list]
+
+        signal.mentions.extend([Mention(str(uuid.uuid4()), [segment], [annotation])
+                                for segment, annotation in zip(segments, annotations)])
+ 
+    
+
+
+
+
 def add_ner_annotation_with_spacy(signal: TextSignal, nlp):
     processor_name = "spaCy"
     utterance = ''.join(signal.seq)
 
     doc = nlp(utterance)
 
-    offsets, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
+    segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
                             for token in doc])
+    
+    annotate_tokens(signal, tokens, segments,AnnotationType.TOKEN.name, processor_name)
 
-    ents = [NER.for_string(ent.label_) for ent in doc.ents]
+
+    ents = [NER.for_string(ent.label_) for ent in doc.ents]    
     entity_list = [ent.text for ent in doc.ents]
+    
     segments = [token.ruler for token in tokens if token.value in entity_list]
+    annotate_tokens(signal, entity_list, segments, AnnotationType.NER.name, processor_name)
+    
+    
 
-    current_time = int(time.time() * 1e3)
-    annotations = [Annotation(AnnotationType.TOKEN.name.lower(), token, processor_name, current_time)
-                   for token in tokens]
-    ner_annotations = [Annotation(AnnotationType.NER.name.lower(), ent, processor_name, current_time)
-                       for ent in ents]
-
-    signal.mentions.extend([Mention(str(uuid.uuid4()), [offset], [annotation])
-                            for offset, annotation in zip(offsets, annotations)])
-    signal.mentions.extend([Mention(str(uuid.uuid4()), [segment], [annotation])
-                            for segment, annotation in zip(segments, ner_annotations)])
+#    current_time = int(time.time() * 1e3)
+#    annotations = [Annotation(AnnotationType.TOKEN.name.lower(), token, processor_name, current_time)
+#                   for token in tokens]
+#    ner_annotations = [Annotation(AnnotationType.NER.name.lower(), ent, processor_name, current_time)
+#                       for ent in ents]
+#
+#    signal.mentions.extend([Mention(str(uuid.uuid4()), [offset], [annotation])
+#                            for offset, annotation in zip(offsets, annotations)])
+#    signal.mentions.extend([Mention(str(uuid.uuid4()), [segment], [annotation])
+#                            for segment, annotation in zip(segments, ner_annotations)])
     # print(entity_list)
     return entity_list
 
 
 
-def add_np_annotation_with_spacy(signal: TextSignal, nlp):
+def add_np_annotation_with_spacy(signal: TextSignal, nlp,  SPEAKER: str, HEARER: str):
 
-    rels={'nsubj', 'dobj', 'prep'}
+    rels={'nsubj', 'nsubjpass', 'dobj', 'prep', 'pcomp', 'acomp'}
     """
     extract predicates with:
     -subject
@@ -60,7 +87,13 @@ def add_np_annotation_with_spacy(signal: TextSignal, nlp):
     
     predicates = {}
     subjects_and_objects = []
+    subject_and_object_tokens = []
     
+    speaker_mentions =[]
+    hearer_mentions =[]
+    speaker_tokens = []
+    hearer_tokens = []
+  
     for token in doc:
         if token.dep_ in rels:
             
@@ -69,26 +102,122 @@ def add_np_annotation_with_spacy(signal: TextSignal, nlp):
             
             if head_id not in predicates:
                 predicates[head_id] = dict()
-            
-            subjects_and_objects.append(token.lemma_)
+            #print(token.pos_)
+            if token.pos_=="PRON" :
+                if (token.text.lower()=='i'):
+                    speaker_mentions.append(SPEAKER)  
+                    speaker_tokens.append(token)
+                elif (token.text.lower()=='you'):
+                    hearer_mentions.append(HEARER)
+                    hearer_tokens.append(token)
+            elif token.pos_=="NOUN" or token.pos_=="VERB" or token.pos_=="PROPN":
+                subjects_and_objects.append(token.lemma_)
+                subject_and_object_tokens.append(token)
+
             
             predicates[head_id][token.dep_] = token.lemma_
    #### Change this to create triples 
-    #output = []
-    #for pred_token, pred_info in predicates.items():
-    #    one_row = (doc[pred_token].lemma_, 
-    #               pred_info.get('nsubj', None),
-    #               pred_info.get('dobj', None)
-    #              )
-    #    output.append(one_row)
 
-    segments = [token.ruler for token in tokens if token.value in subjects_and_objects]
+    #TODO make sure the correct annotations are made as well 
+    if subject_and_object_tokens:
+        segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
+                                for token in subject_and_object_tokens])
+        annotate_tokens(signal, subjects_and_objects, segments,AnnotationType.TOKEN.name, processor_name)
 
-    current_time = int(time.time() * 1e3)
-    annotations = [Annotation(AnnotationType.TOKEN.name.lower(), token, processor_name, current_time)
-                   for token in tokens]
+    if speaker_tokens:
+        segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
+                            for token in speaker_tokens])
+        annotate_tokens(signal, speaker_mentions, segments,AnnotationType.NER.name, processor_name)
 
-    signal.mentions.extend([Mention(str(uuid.uuid4()), [offset], [annotation])
-                            for offset, annotation in zip(offsets, annotations)])
-    # print(subjects_and_objects)
+    if hearer_tokens:
+        segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
+                            for token in hearer_tokens])
+        annotate_tokens(signal, hearer_mentions, segments,AnnotationType.NER.name, processor_name)
+
     return subjects_and_objects
+
+def get_subj_amod_triples_with_spacy(signal: TextSignal, nlp, SPEAKER, HEARER):
+
+    """
+    extract predicates with:
+    -subject
+    -object
+    
+    :param spacy.tokens.doc.Doc doc: spaCy object after processing text
+    
+    :rtype: list 
+    :return: list of tuples (predicate, subject, object)
+    """
+    rels={'nsubj', 'nsubjpass', 'auxpass', 'acomp'}
+
+
+    triples = []
+
+    processor_name = "spaCy"
+    utterance = ''.join(signal.seq)
+
+    doc = nlp(utterance)
+ 
+    predicates={}
+    acomp = []
+    
+    subject_tokens = []
+    subjects_mentions =[] 
+    speaker_mentions =[]
+    hearer_mentions =[]
+    speaker_tokens = []
+    hearer_tokens = []
+
+    for token in doc:
+        if token.dep_ in rels:
+            
+            head = token.head
+            head_id = head.i
+            
+            if head_id not in predicates:
+                predicates[head_id] = dict()
+            #print(token.pos_)
+            if token.dep_=='nsubj' or token.dep_=='nsubjpass':
+                if (token.text.lower()=='i'):
+                    predicates[head_id]['head'] = SPEAKER
+                    speaker_tokens.append(token)
+                    speaker_mentions.append(SPEAKER)
+                elif (token.text.lower()=='you'):
+                    predicates[head_id]['head'] = HEARER
+                    hearer_tokens.append(token)
+                    hearer_mentions.append(HEARER)
+                elif token.pos_=="PROPN":
+                    predicates[head_id]['head'] = token.lemma_
+                    subject_tokens.append(token)
+                    subjects_mentions.append(SPEAKER)
+            if token.dep_=='acomp' or token.dep=='auxpass':
+                    predicates[head_id]['tail'] = token.lemma_
+    for pred_token, pred_info in predicates.items():
+        triple = (doc[pred_token].lemma_, 
+                   pred_info.get('head', None),
+                   pred_info.get('tail', None)
+                  )
+        if triple[1] and triple[2]:
+            triples.append(triple)
+    if triples:
+ 
+        #TODO make sure the correct annotations are made as well 
+        if subject_tokens:
+            segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
+                                for token in subject_tokens])
+            annotate_tokens(signal, subjects_mentions, segments,AnnotationType.NER.name, processor_name)
+
+        if speaker_tokens:
+            segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
+                                for token in speaker_tokens])
+            annotate_tokens(signal, speaker_mentions, segments,AnnotationType.NER.name, processor_name)
+
+        if hearer_tokens:
+            segments, tokens = zip(*[(Index(signal.id, token.idx, token.idx + len(token)), Token.for_string(token.text))
+                                for token in hearer_tokens])
+            annotate_tokens(signal, hearer_mentions, segments,AnnotationType.NER.name, processor_name)
+
+    
+    print('Triples subj - aux - amod', triples)
+    return triples
+
