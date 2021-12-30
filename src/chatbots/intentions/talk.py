@@ -254,6 +254,7 @@ def process_triple_spacy_and_reply(scenario: Scenario,
     response = None
     response_json = None
     triples = t_util.get_subj_amod_triples_with_spacy(textSignal, nlp, speaker, hearer)
+    triples.extend(t_util.get_subj_obj_triples_with_spacy(textSignal, nlp, speaker, hearer))
     if print_details:
         print('Triples', triples)
 
