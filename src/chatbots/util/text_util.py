@@ -234,7 +234,7 @@ def get_subj_obj_triples_with_spacy(signal: TextSignal, nlp,  SPEAKER: str, HEAR
     :rtype: list 
     :return: list of tuples (predicate, subject, object)
     """
-    rels={'nsubj', 'dobj'}
+    rels={'nsubj', 'dobj', 'xcomp'}
     processor_name = "spaCy"
     utterance = ''.join(signal.seq)
 
@@ -278,7 +278,7 @@ def get_subj_obj_triples_with_spacy(signal: TextSignal, nlp,  SPEAKER: str, HEAR
                     predicates[head_id]['head'] = token.lemma_
                     subject_tokens.append(token)
                     subject_mentions.append(SPEAKER)
-            if token.dep_=='dobj':
+            if token.dep_=='dobj' or token.dep=='xcomp':
                 if (token.text.lower()=='i'):
                     predicates[head_id]['tail'] = SPEAKER
                     speaker_tokens.append(token)
@@ -335,7 +335,7 @@ def get_subj_attr_triples_with_spacy(signal: TextSignal, nlp,  SPEAKER: str, HEA
     :rtype: list 
     :return: list of tuples (predicate, subject, object)
     """
-    rels={'nsubj', 'attr'}
+    rels={'nsubj', 'intj','appos' 'attr'}
     processor_name = "spaCy"
     utterance = ''.join(signal.seq)
 
@@ -366,7 +366,7 @@ def get_subj_attr_triples_with_spacy(signal: TextSignal, nlp,  SPEAKER: str, HEA
                 predicates[head_id] = dict()
 
             #print(token.pos_)
-            if token.dep_=='nsubj':
+            if token.dep_=='nsubj' or token.dep=='intj':
                 if (token.text.lower()=='i'):
                     predicates[head_id]['head'] = SPEAKER
                     speaker_tokens.append(token)
@@ -379,7 +379,7 @@ def get_subj_attr_triples_with_spacy(signal: TextSignal, nlp,  SPEAKER: str, HEA
                     predicates[head_id]['head'] = token.lemma_
                     subject_tokens.append(token)
                     subject_mentions.append(SPEAKER)
-            if token.dep_=='attr':
+            if token.dep_=='attr' or token.dep=='appos':
                 if (token.text.lower()=='i'):
                     predicates[head_id]['tail'] = SPEAKER
                     speaker_tokens.append(token)
