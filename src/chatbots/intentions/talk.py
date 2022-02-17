@@ -16,7 +16,7 @@ if src_path not in sys.path:
     sys.path.append(src_path)
 
 import chatbots.util.capsule_util as c_util
-
+import chatbots.util.text_util as t_util
 
 # basic function that creates a capsule from a triple and stores it on the brain
 # @parameters triple as a json string and the initilised brain as LongTermMemory
@@ -113,11 +113,13 @@ def process_text_and_reply(scenario: Scenario,
     reply = None
     capsule = None
     response = None
-    
+    response_json = None
+    ### Next, we get all possible triples
     chat.add_utterance([UtteranceHypothesis(c_util.seq_to_text(textSignal.seq), 1.0)])
     chat.last_utterance.analyze()
+    if print_details:
+            print('Last utterance:', c_util.seq_to_text(textSignal.seq))
 
-    
     if chat.last_utterance.triple is None:
         reply = choice(ELOQUENCE)
 
@@ -155,5 +157,135 @@ def process_text_and_reply(scenario: Scenario,
             except:
                 print('Error:', response)
 
-    return capsule, reply
+    return capsule, reply, response_json
+
+
+def process_text_spacy_and_reply(scenario: Scenario,
+                           place_id: str,
+                           location: str,
+                           speaker: str,
+                           hearer:str,
+                           textSignal: TextSignal,
+                           chat: Chat,
+                           replier: LenkaReplier,
+                           my_brain: LongTermMemory,
+                           nlp,
+                           print_details:False):
+    replies = []
+    capsule = None
+    response = None
+    response_json = None
+    ### We first add the mentions for any entities to the signal
+    entities = t_util.add_ner_annotation_with_spacy(textSignal, nlp)
+    subject_objects = t_util.add_np_annotation_with_spacy(textSignal, nlp, speaker, hearer)
+    if print_details:
+        print('Entities', entities)
+        print('Subject_and_objects', subject_objects)
+
+    if entities is None and subject_objects is None:
+        reply = choice(ELOQUENCE)
+    if len(entities)>0:
+        for entity in entities:
+            capsule = c_util.scenario_text_mention_to_capsule(scenario,
+                                                              place_id,
+                                                              location,
+                                                              textSignal,
+                                                              speaker,
+                                                              entity,
+                                                              "denotedIn",
+                                                              textSignal.id)
+
+
+            if print_details:
+                print('Entity Capsule:')
+                pprint.pprint(capsule)
+
+            try:
+                response = my_brain.update(capsule, reason_types=True, create_label=True)
+                response_json = brain_response_to_json(response)
+                reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
+                if print_details:
+                    print('Entity reply', reply)
+                replies.append(reply)
+            except:
+                print('Error:', response)
+    if len(subject_objects)>0:
+        for np in subject_objects:
+            capsule = c_util.scenario_text_mention_to_capsule(scenario,
+                                                              place_id,
+                                                              location,
+                                                              textSignal,
+                                                              speaker,
+                                                              np,
+                                                              "denotedIn",
+                                                              textSignal.id)
+
+
+            if print_details:
+                print('Subj/Obj Capsule:')
+                pprint.pprint(capsule)
+
+            try:
+                response = my_brain.update(capsule, reason_types=True, create_label=True)
+                response_json = brain_response_to_json(response)
+                reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
+                replies.append(reply)
+                if print_details:
+                    print('Sub/Obj reply', reply)
+
+            except:
+                print('Error:', response)
+
+    return replies, response_json
+
+def process_triple_spacy_and_reply(scenario: Scenario,
+                           place_id: str,
+                           location: str,
+                           speaker: str,
+                           hearer:str,
+                           textSignal: TextSignal,
+                           chat: Chat,
+                           replier: LenkaReplier,
+                           my_brain: LongTermMemory,
+                           nlp,
+                           print_details:False):
+    replies = []
+    capsule = None
+    response = None
+    response_json = None
+    triples = t_util.get_subj_amod_triples_with_spacy(textSignal, nlp, speaker, hearer)
+    triples.extend(t_util.get_subj_obj_triples_with_spacy(textSignal, nlp, speaker, hearer))
+    if print_details:
+        print('Triples', triples)
+
+    if triples is None:
+        reply = choice(ELOQUENCE)
+    else:
+        for triple in triples:
+            capsule = c_util.scenario_text_mention_to_capsule(scenario,
+                                                              place_id,
+                                                              location,
+                                                              textSignal,
+                                                              speaker,
+                                                              triple[1],
+                                                              "hasState",
+                                                              triple[2])
+            if print_details:
+                print('Triple spacy Capsule:')
+                pprint.pprint(capsule)
+
+            try:
+                response = my_brain.update(capsule, reason_types=True, create_label=True)
+                response_json = brain_response_to_json(response)
+                reply = replier.reply_to_statement(response_json, proactive=True, persist=True)
+                replies.append(reply)
+                if print_details:
+                    print('Triple spacy reply', reply)
+
+            except:
+                print('Error:', response)
+
+    return replies, response_json
+
+
 

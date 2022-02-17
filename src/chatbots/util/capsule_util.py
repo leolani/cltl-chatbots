@@ -234,3 +234,37 @@ def scenario_image_triple_to_capsule(scenario: Scenario,
                }
 
     return capsule
+
+
+def scenario_text_mention_to_capsule(scenario: Scenario,
+                                     place_id: str,
+                                     location: str,
+                                     signal: TextSignal,
+                                     author: str,
+                                     subj: str,
+                                     pred: str,
+                                     obj: str):
+
+    capsule = {"chat": scenario.id,
+               "turn": signal.id,
+               "author": author,
+               "utterance": "",
+               "position": "image",
+               "subject": {"label": subj, "type": "noun.person"},
+               "predicate": {"label": "denotedIn"},
+               "object": {"label": obj, "type": ""},
+               "context_id": scenario.scenario.context,
+               ##### standard elements
+               "date": date.today(),
+               "place": location['city'],
+               "place_id": place_id,
+               "country": location['country'],
+               "region": location['region'],
+               "city": location['city'],
+               "objects": [],
+               "people": []
+               }
+
+    return capsule
+
+
