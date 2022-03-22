@@ -286,6 +286,7 @@ def run_yolo_api(to_send: dict, url_yolo: str = "http://127.0.0.1:10004/") -> li
     logging.debug(f"sending image to server at {url_yolo}...")
 
     to_send = jsonpickle.encode(to_send)
+    print("url",url_yolo)
     response = requests.post(url_yolo, json=to_send)
     logging.info(f"got {response} from server!...")
     response = jsonpickle.decode(response.text)

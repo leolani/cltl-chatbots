@@ -218,7 +218,7 @@ def get_subj_amod_triples_with_spacy(signal: TextSignal, nlp,  SPEAKER: str, HEA
             annotate_tokens(signal, hearer_mentions, segments,AnnotationType.LINK.name, processor_name)
 
 
-    print('Triples subj - aux - amod', triples)
+   # print('Triples subj - aux - amod', triples)
     return triples
 
 
@@ -319,7 +319,7 @@ def get_subj_obj_triples_with_spacy(signal: TextSignal, nlp,  SPEAKER: str, HEAR
             annotate_tokens(signal, hearer_mentions, segments,AnnotationType.LINK.name, processor_name)
 
 
-    print('Triples subj - pred - obj', triples)
+   # print('Triples subj - pred - obj', triples)
     return triples
 
 
@@ -422,7 +422,7 @@ def get_subj_attr_triples_with_spacy(signal: TextSignal, nlp,  SPEAKER: str, HEA
 
 
 
-    print('Triples subj - pred - attr', triples)
+   # print('Triples subj - pred - attr', triples)
     return triples
 
 
@@ -531,7 +531,7 @@ def get_subj_prep_pobj_triples_with_spacy(signal: TextSignal, nlp,  SPEAKER: str
 
 
    
-    print('Triples subj - pred - prep-obj', triples)
+  #  print('Triples subj - pred - prep-obj', triples)
     return triples
 
 

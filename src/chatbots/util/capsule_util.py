@@ -214,14 +214,15 @@ def scenario_image_triple_to_capsule(scenario: Scenario,
                                      obj: str):
 
     capsule = {"chat": scenario.id,
-               "turn": signal.id,
+               "turn": signal,
                "author": author,
                "utterance": "",
                "position": "image",
-               "subject": {"label": subj, "type": "noun.person"},
-               "predicate": {"label": pred},
-               "object": {"label": obj, "type": ""},
+               "subject": {"label": subj, "type": "", "uri":None},
+               "predicate": {"label": pred, "uri":None},
+               "object": {"label": obj, "type": "", "uri":None},
                "context_id": scenario.scenario.context,
+               "utterance_type": "STATEMENT",
                ##### standard elements
                "date": date.today(),
                "place": location['city'],
@@ -229,6 +230,38 @@ def scenario_image_triple_to_capsule(scenario: Scenario,
                "country": location['country'],
                "region": location['region'],
                "city": location['city'],
+               "objects": [],
+               "people": []
+               }
+
+    return capsule
+
+#### Leaving out the context information
+def scenario_image_triple_to_capsule_without_context(scenario: Scenario,
+                                     signal: ImageSignal,
+                                     author: str,
+                                     subj: str,
+                                     pred: str,
+                                     obj: str):
+
+    capsule = {"chat": scenario.id,
+               "turn": signal,
+               "author": author,
+               "utterance": "",
+               "position": "image",
+               "subject": {"label": subj, "type": "", "uri":None},
+               "predicate": {"label": pred, "uri":None},
+               "object": {"label": obj, "type": "", "uri":None},
+               "context_id": scenario.scenario.context,
+               "date": date.today(),
+               "utterance_type": "STATEMENT",
+
+               ##### standard elements
+               "place": "",
+               "place_id": "",
+               "country": "",
+               "region": "",
+               "city": "",
                "objects": [],
                "people": []
                }
