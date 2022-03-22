@@ -154,17 +154,18 @@ def start_a_scenario (AGENT:str, HUMAN_ID:str, HUMAN_NAME: str):
 def main():
     ### Link your camera
     camera = cv2.VideoCapture(0)
-    nlp = spacy.load("en_core_web_sm")
     # Initialise the brain in GraphDB
-    log_path = pathlib.Path('./logs')
-    my_brain = brain.LongTermMemory(address="http://localhost:7200/repositories/sandbox",
-                                    log_dir=log_path,
-                                    clear_all=True)
-    ##### Setting the agents
+
+   ##### Setting the agents
     AGENT = "Leolani2"
     HUMAN_NAME = "Stranger"
     HUMAN_ID = "stranger"
     scenarioStorage, scenario_ctrl, imagefolder, rdffolder, location, place_id = start_a_scenario(AGENT, HUMAN_ID, HUMAN_NAME)
+
+    log_path = pathlib.Path(rdffolder)
+    my_brain = brain.LongTermMemory(address="http://localhost:7200/repositories/sandbox",
+                                    log_dir=log_path,
+                                    clear_all=True)
 
     watch_and_remmeber(scenario_ctrl, camera, imagefolder,  my_brain, location, place_id)
     scenario_ctrl.scenario.ruler.end = int(time.time() * 1e3)
