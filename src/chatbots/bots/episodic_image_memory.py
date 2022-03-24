@@ -61,7 +61,7 @@ def add_perception_to_episodic_memory (imageSignal: ImageSignal, object_list, my
     for object in object_list:
         ### We created a perceivedBy triple for this experience,
         ### @TODO we need to include the bouding box somehow in the object
-        print(object)
+        #print(object)
         capsule = c_util.scenario_image_triple_to_capsule(scenario_ctrl,
                                                           imageSignal,
                                                           location,
@@ -71,7 +71,7 @@ def add_perception_to_episodic_memory (imageSignal: ImageSignal, object_list, my
                                                           "perceivedIn",
                                                           imageSignal.id)
         
-        print(capsule)
+        #print(capsule)
         # Create the response from the system and store this as a new signal
         # We use the throughts to respond
         response = my_brain.update(capsule, reason_types=True, create_label=True)
