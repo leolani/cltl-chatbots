@@ -6,7 +6,7 @@ from emissor.representation.scenario import ImageSignal
 from cltl import brain
 from cltl.reply_generation.data.sentences import GREETING, ASK_NAME, ELOQUENCE, TALK_TO_ME
 from cltl.reply_generation.lenka_replier import LenkaReplier
-from cltl.triple_extraction.api import Chat, UtteranceHypothesis
+from cltl.triple_extraction.api import Chat
 from emissor.representation.scenario import Modality, ImageSignal, TextSignal, Mention, Annotation, Scenario
 
 # specific imports

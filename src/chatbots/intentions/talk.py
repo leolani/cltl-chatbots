@@ -8,7 +8,7 @@ from cltl.brain.utils.helper_functions import brain_response_to_json
 from cltl.combot.backend.api.discrete import UtteranceType
 from cltl.reply_generation.data.sentences import ELOQUENCE
 from cltl.reply_generation.lenka_replier import LenkaReplier
-from cltl.triple_extraction.api import Chat, UtteranceHypothesis
+from cltl.triple_extraction.api import Chat
 from emissor.representation.scenario import TextSignal, Scenario
 from cltl.triple_extraction.cfg_analyzer import CFGAnalyzer
 
