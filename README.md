@@ -1,5 +1,6 @@
 # cltl-chatbots
 
+[UNDER CONSTRUCTION]
 Series of chatbots that demonstrate Leolani’s functionalities.
 
 The chatbots use the CLTL EMISSOR and KnowledgeRepresentation (aka the BRAIN) models and follow the Leolani platform in
@@ -16,6 +17,7 @@ perspective of the users.
 ![./images/interaction-to-knowledge.png](./images/interaction-to-knowledge.png)
 
 Several Jupyter notebooks have been included that demonstrate different types of interactions.
+[NOTEBOOKS ARE OUT DATED AND NEED TO BE REVISED]
 
 ## Getting started
 
