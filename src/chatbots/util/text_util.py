@@ -1,12 +1,15 @@
 #### Example of an annotation function that adds annotations to a Signal
 #### It adds NERC annotations to the TextSignal and returns a list of entities detected
-
+from typing import Text
+import requests
 import uuid
+import jsonpickle
 
 import time
 from emissor.representation.annotation import AnnotationType, Token, NER
 from emissor.representation.container import Index
 from emissor.representation.scenario import TextSignal, Mention, Annotation
+from emissor.representation.entity import Emotion
 
 
 
@@ -535,3 +538,31 @@ def get_subj_prep_pobj_triples_with_spacy(signal: TextSignal, nlp,  SPEAKER: str
     return triples
 
 
+def recognize_emotion(utterance: str, url_erc: str = "http://127.0.0.1:10006"):
+    """Recognize the speaker emotion of a given utterance.
+    
+    Args
+    ----
+    utterance:
+    url_erc: the url of the emoberta api server.
+
+    Returns
+    -------
+    ?
+    """
+    data = {"text": utterance}
+
+    data = jsonpickle.encode(data)
+    response = requests.post(url_erc, json=data)
+    response = jsonpickle.decode(response.text)
+
+    return response
+
+# def create_emotion_mention(text_signal: TextSignal, source: str, current_time: int, 
+#                            emotion: str):
+#     emotion_annotation = Annotation(AnnotationType.EMOTION.emotion, 
+#     )
+
+# @emissor_dataclass(namespace="http://cltl.nl/leolani/n2mu")
+# class EmotionPerson(Emotion):
+#     emotion_prob: float
