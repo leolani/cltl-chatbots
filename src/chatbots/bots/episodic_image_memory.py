@@ -1,5 +1,4 @@
 # general imports for EMISSOR and the BRAIN
-import emissor as em
 from cltl import brain
 from emissor.representation.scenario import ImageSignal
 
@@ -9,15 +8,14 @@ from datetime import datetime
 import time
 import cv2
 import requests
-import spacy
 import pathlib
 import sys
 import os
 
 #### The next utils are needed for the interaction and creating triples and capsules
-import src.chatbots.util.driver_util as d_util
-import src.chatbots.util.capsule_util as c_util
-import src.chatbots.util.face_util as f_util
+import chatbots.util.driver_util as d_util
+import chatbots.util.capsule_util as c_util
+import chatbots.util.face_util as f_util
 
 def get_next_image(camera, imagefolder):
     what_is_seen = None
