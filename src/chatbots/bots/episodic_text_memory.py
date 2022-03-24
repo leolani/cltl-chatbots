@@ -20,9 +20,9 @@ import sys
 import os
 
 #### The next utils are needed for the interaction and creating triples and capsules
-import src.chatbots.util.driver_util as d_util
-import src.chatbots.intentions.talk as talk
-import src.chatbots.util.capsule_util as c_util
+import chatbots.util.driver_util as d_util
+import chatbots.intentions.talk as talk
+import chatbots.util.capsule_util as c_util
 from cltl.triple_extraction.cfg_analyzer import CFGAnalyzer
 
 
