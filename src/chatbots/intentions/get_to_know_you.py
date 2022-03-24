@@ -5,8 +5,8 @@ from cltl.brain.long_term_memory import LongTermMemory
 from emissor.persistence.persistence import ScenarioController
 from emissor.representation.scenario import ImageSignal, TextSignal, Scenario
 
-import chatbots.util.capsule_util as c_util
-import chatbots.util.driver_util as d_util
+import src.chatbots.util.capsule_util as c_util
+import src.chatbots.util.driver_util as d_util
 
 
 ### Function that tries to get the name for a new person. A while is used till the user is happy.

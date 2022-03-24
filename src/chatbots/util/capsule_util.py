@@ -48,7 +48,7 @@ def scenario_utterance_to_capsule(scenario: Scenario,
                "utterance": seq_to_text(signal.seq),
                "utterance_type": UtteranceType.STATEMENT,
                "position": "0-" + str(len(signal.seq)),  # TODO generate the true offset range
-               "subject": {"label": subj, "type": "person"},
+               "subject": {"label": subj, "type": ""},
                "predicate": {"label": pred},
                "object": {"label": obj, "type": ""},
                "context_id": scenario.scenario.context,
@@ -64,6 +64,34 @@ def scenario_utterance_to_capsule(scenario: Scenario,
                }
     return capsule
 
+def scenario_utterance_to_capsule(scenario: Scenario,
+                                  place_id: str,
+                                  location: str,
+                                  signal: TextSignal,
+                                  author: str,
+                                  triple: str):
+    capsule = {"chat": scenario.id,
+               "turn": signal.id,
+               "author": author,
+               "utterance": seq_to_text(signal.seq),
+               #"utterance_type": UtteranceType.STATEMENT,
+               "position": "0-" + str(len(signal.seq)),  # TODO generate the true offset range
+               "subject": triple["subject"],
+               "predicate": triple["predicate"],
+               "object": triple["object"],
+               'utterance_type': 'STATEMENT',
+               "context_id": scenario.scenario.context,
+               ##### standard elements
+               "date": date.today(),
+               "place": location['city'],
+               "place_id": place_id,
+               "country": location['country'],
+               "region": location['region'],
+               "city": location['city'],
+               "objects":  [],
+               "people":  []
+               }
+    return capsule
 
 def scenario_utterance_to_capsule_with_perspective(scenario: Scenario,
                                                    place_id: str,
@@ -153,13 +181,18 @@ def rephrase_triple_json_for_capsule(triple: dict):
         object_type = triple['object']['type'][0]
 
     rephrase = {
-        "subject": {'label': triple['subject']['label'], 'type': subject_type},
+        "subject": {'label': triple['subject']['label'], 'type': subject_type, 'uri':triple['uri']},
         "predicate": {'label': triple['predicate']['label'], 'type': predicate_type},
         "object": {'label': triple['object']['label'], 'type': object_type},
     }
     return rephrase
 
-
+def add_uri_to_triple(triple:dict):
+    uri = {'uri':None}
+    triple['subject'].update(uri)
+    triple['predicate'].update(uri)
+    triple['object'].update(uri)
+    print(triple)
 
 def lowcase_triple_json_for_query(capsule: dict): 
     if capsule['subject']['label']:
