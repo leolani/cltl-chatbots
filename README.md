@@ -34,8 +34,8 @@ After installing docker desktop, we advise you to pull the docker images for sen
 Use the docker pull command from the command line:
 
 * docker pull tae898/yolov5 (15.84GB): object detection
-* docker pull tae898/age-gender:v0.2 (4.96GB): face properties
-* docker pull tae898/face-detection-recognition:v0.1 (2.9GB): face identitification
+* docker pull tae898/age-gender (4.96GB): face properties
+* docker pull tae898/face-detection-recognition (2.9GB): face identitification
 
 Once the docker images are loaded and running in your Docker desktop they are available to make calls from the notebooks and other code.
 
