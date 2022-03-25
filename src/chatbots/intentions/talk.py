@@ -17,8 +17,8 @@ if src_path not in sys.path:
     sys.path.append(src_path)
 
 
-import src.chatbots.util.capsule_util as c_util
-import src.chatbots.util.text_util as t_util
+import chatbots.util.capsule_util as c_util
+import chatbots.util.text_util as t_util
 
 # basic function that creates a capsule from a triple and stores it on the brain
 # @parameters triple as a json string and the initilised brain as LongTermMemory
