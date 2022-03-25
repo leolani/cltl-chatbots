@@ -77,12 +77,12 @@ def add_perception_to_episodic_memory (imageSignal: ImageSignal, object_list, my
     return response_list
 
 
-def watch_and_remmeber(scenario_ctrl,
-          camera,
-          imagefolder,
-          my_brain,
-          location,
-          place_id):
+def watch_and_remember(scenario_ctrl,
+                       camera,
+                       imagefolder,
+                       my_brain,
+                       location,
+                       place_id):
 
     t1 = datetime.now()
     while (datetime.now()-t1).seconds <= 60:
@@ -165,7 +165,7 @@ def main():
                                     log_dir=log_path,
                                     clear_all=True)
 
-    watch_and_remmeber(scenario_ctrl, camera, imagefolder,  my_brain, location, place_id)
+    watch_and_remember(scenario_ctrl, camera, imagefolder, my_brain, location, place_id)
     scenario_ctrl.scenario.ruler.end = int(time.time() * 1e3)
     scenarioStorage.save_scenario(scenario_ctrl)
     camera.release()
