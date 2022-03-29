@@ -1,7 +1,4 @@
 # general imports for EMISSOR and the BRAIN
-import emissor as em
-from cltl import brain
-from emissor.representation.scenario import ImageSignal
 
 from cltl import brain
 from cltl.reply_generation.data.sentences import GREETING, ASK_NAME, ELOQUENCE, TALK_TO_ME
@@ -11,20 +8,16 @@ from emissor.representation.scenario import Modality, ImageSignal, TextSignal, M
 
 # specific imports
 from random import getrandbits, choice
-from datetime import datetime
 import time
-import requests
 import spacy
 import pathlib
-import sys
-import os
+import emissor_api
 
 #### The next utils are needed for the interaction and creating triples and capsules
 import chatbots.util.driver_util as d_util
 import chatbots.intentions.talk as talk
 import chatbots.util.capsule_util as c_util
 from cltl.triple_extraction.cfg_analyzer import CFGAnalyzer
-
 
 
 def get_subj_obj_labels_from_capsules(capsule_list):
@@ -111,49 +104,6 @@ def listen_and_remember(scenario_ctrl,
         mention_list = get_subj_obj_labels_from_capsules(capsule_list)
         add_mention_to_episodic_memory(textSignal, HUMAN_ID, mention_list, my_brain, scenario_ctrl, location, place_id)
 
-def start_a_scenario (AGENT:str, HUMAN_ID:str, HUMAN_NAME: str):
-    ##### Setting the location
-
-    place_id = getrandbits(8)
-    location = None
-    try:
-        location = requests.get("https://ipinfo.io").json()
-    except:
-        print("failed to get the IP location")
-
-    ### The name of your scenario
-    scenario_id = datetime.today().strftime("%Y-%m-%d-%H:%M:%S")
-
-    ### Specify the path to an existing data folder where your scenario is created and saved as a subfolder
-    # Find the repository root dir
-    parent, dir_name = (d_util.__file__, "_")
-    while dir_name and dir_name != "src":
-        parent, dir_name = os.path.split(parent)
-    root_dir = parent
-    scenario_path = os.path.abspath(os.path.join(root_dir, 'data'))
-
-    if scenario_path not in sys.path:
-        sys.path.append(scenario_path)
-
-    if not os.path.exists(scenario_path):
-        os.mkdir(scenario_path)
-        print("Created a data folder for storing the scenarios", scenario_path)
-
-    ### Specify the path to an existing folder with the embeddings of your friends
-    friends_path = os.path.abspath(os.path.join(root_dir, 'friend_embeddings'))
-    if friends_path not in sys.path:
-        sys.path.append(friends_path)
-        print("The paths with the friends:", friends_path)
-
-    ### Define the folders where the images and rdf triples are saved
-    imagefolder = scenario_path + "/" + scenario_id + "/" + "image"
-    rdffolder = scenario_path + "/" + scenario_id + "/" + "rdf"
-
-    ### Create the scenario folder, the json files and a scenarioStorage and scenario in memory
-    scenarioStorage = d_util.create_scenario(scenario_path, scenario_id)
-    scenario_ctrl = scenarioStorage.create_scenario(scenario_id, int(time.time() * 1e3), None, AGENT)
-    return scenarioStorage,  scenario_ctrl, imagefolder, rdffolder, location, place_id
-
 
 def main():
     ### Link your camera
@@ -164,7 +114,7 @@ def main():
     AGENT = "Leolani2"
     HUMAN_NAME = "Stranger"
     HUMAN_ID = "stranger1"
-    scenarioStorage, scenario_ctrl, imagefolder, rdffolder, location, place_id = start_a_scenario(AGENT, HUMAN_ID, HUMAN_NAME)
+    scenarioStorage, scenario_ctrl, imagefolder, rdffolder, location, place_id = emissor_api.start_a_scenario(AGENT, HUMAN_ID, HUMAN_NAME)
 
     log_path = pathlib.Path(rdffolder)
     my_brain = brain.LongTermMemory(address="http://localhost:7200/repositories/sandbox",
