@@ -6,7 +6,7 @@ cltl.asr[impl]==0.0.dev4
 cltl.vad[impl]==0.0.dev1
 cltl.backend[impl,host]==0.0.dev3
 cltl.reply-generation==0.0.dev8
-cltl.triple-extraction==0.0.dev6
+cltl.triple-extraction==0.0.dev8
 emissor==0.0.dev5
 jsonpickle==2.0.0
 opencv-python==4.5.4.58
