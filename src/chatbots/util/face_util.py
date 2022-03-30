@@ -286,7 +286,7 @@ def run_yolo_api(to_send: dict, url_yolo: str = "http://127.0.0.1:10004/") -> li
     logging.debug(f"sending image to server at {url_yolo}...")
 
     to_send = jsonpickle.encode(to_send)
-    print("url",url_yolo)
+    print("url", url_yolo)
     response = requests.post(url_yolo, json=to_send)
     logging.info(f"got {response} from server!...")
     response = jsonpickle.decode(response.text)
@@ -381,13 +381,11 @@ def annotate_face(
     return image_annotated
 
 
-FaceInfo = namedtuple('FaceInfo', ('gender',
-                                   'age',
-                                   'bbox',
-                                   'face_id',
-                                   'det_score',
-                                   'embedding',
-                                   'yolo_result'))
+FaceInfo = namedtuple(
+    "FaceInfo",
+    ("gender", "age", "bbox", "face_id", "det_score", "embedding", "yolo_result"),
+)
+
 
 def detect_faces(
     friends_path: str,
@@ -432,14 +430,18 @@ def detect_faces(
     image.save(image_path)
     logging.info(f"image saved at {image_path}")
 
-    return tuple(FaceInfo(*info) for info in zip(genders,
-                                          ages,
-                                          face_bboxes,
-                                          faces_detected,
-                                          det_scores,
-                                          embeddings,
-                                          yolo_results))
-
+    return tuple(
+        FaceInfo(*info)
+        for info in zip(
+            genders,
+            ages,
+            face_bboxes,
+            faces_detected,
+            det_scores,
+            embeddings,
+            yolo_results,
+        )
+    )
 
 
 def detect_objects(
@@ -475,37 +477,49 @@ def detect_objects(
     return yolo_results
 
 
-def create_face_mention(image_signal: ImageSignal,
-                        source: str,
-                        current_time: int,
-                        bbox: Tuple[int, int , int, int],
-                        uri: str,
-                        name: str,
-                        age: str,
-                        gender: str,
-                        face_prob: float) -> Mention:
-    bbox = [max(x, lower) for x, lower in zip(bbox[:2], image_signal.ruler.bounds[:2])] + \
-            [min(x, upper) for x, upper in zip(bbox[-2:], image_signal.ruler.bounds[-2:])]
+def create_face_mention(
+    image_signal: ImageSignal,
+    source: str,
+    current_time: int,
+    bbox: Tuple[int, int, int, int],
+    uri: str,
+    name: str,
+    age: str,
+    gender: str,
+    face_prob: float,
+) -> Mention:
+    bbox = [
+        max(x, lower) for x, lower in zip(bbox[:2], image_signal.ruler.bounds[:2])
+    ] + [min(x, upper) for x, upper in zip(bbox[-2:], image_signal.ruler.bounds[-2:])]
     face_segment = image_signal.ruler.get_area_bounding_box(*bbox)
-    face_annotation = Annotation(AnnotationType.PERSON.name,
-                                 FacePerson(uri, name, age, Gender[gender.upper()], face_prob),
-                                 source, current_time)
+    face_annotation = Annotation(
+        AnnotationType.PERSON.name,
+        FacePerson(uri, name, age, Gender[gender.upper()], face_prob),
+        source,
+        current_time,
+    )
 
     return Mention(str(uuid.uuid4()), [face_segment], [face_annotation])
 
 
-def create_object_mention(image_signal: ImageSignal,
-                        source: str,
-                        current_time: int,
-                        bbox: Tuple[int, int , int, int],
-                        name: str,
-                        obj_prob: float) -> Mention:
-    bbox = [max(x, lower) for x, lower in zip(bbox[:2], image_signal.ruler.bounds[:2])] + \
-            [min(x, upper) for x, upper in zip(bbox[-2:], image_signal.ruler.bounds[-2:])]
+def create_object_mention(
+    image_signal: ImageSignal,
+    source: str,
+    current_time: int,
+    bbox: Tuple[int, int, int, int],
+    name: str,
+    obj_prob: float,
+) -> Mention:
+    bbox = [
+        max(x, lower) for x, lower in zip(bbox[:2], image_signal.ruler.bounds[:2])
+    ] + [min(x, upper) for x, upper in zip(bbox[-2:], image_signal.ruler.bounds[-2:])]
     object_segment = image_signal.ruler.get_area_bounding_box(*bbox)
-    object_annotation = Annotation(AnnotationType.OBJECT.name,
-                                 ImageObject(str(uuid.uuid4()), name, obj_prob),
-                                 source, current_time)
+    object_annotation = Annotation(
+        AnnotationType.OBJECT.name,
+        ImageObject(str(uuid.uuid4()), name, obj_prob),
+        source,
+        current_time,
+    )
 
     return Mention(str(uuid.uuid4()), [object_segment], [object_annotation])
 
