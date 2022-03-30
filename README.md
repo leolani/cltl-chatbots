@@ -107,6 +107,14 @@ jupyter lab
 
 Select kernel venv for each notebook
 
+## Demos
+
+```sh
+python episodic_image_memory.py
+python episodic_text_memory.py
+python lets-chat_with_a_brain.py
+```
+
 ## Troubling shooting
 
 The code has been developed and tested on Mac OS and Linux. Some issues may arise when installing and running on Windows 10.
