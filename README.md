@@ -1,6 +1,6 @@
 # cltl-chatbots
 
-[UNDER CONSTRUCTION]
+\[UNDER CONSTRUCTION\]
 Series of chatbots that demonstrate Leolani’s functionalities.
 
 The chatbots use the CLTL EMISSOR and KnowledgeRepresentation (aka the BRAIN) models and follow the Leolani platform in
@@ -17,7 +17,7 @@ perspective of the users.
 ![./images/interaction-to-knowledge.png](./images/interaction-to-knowledge.png)
 
 Several Jupyter notebooks have been included that demonstrate different types of interactions.
-[NOTEBOOKS ARE OUT DATED AND NEED TO BE REVISED]
+\[NOTEBOOKS ARE OUT DATED AND NEED TO BE REVISED\]
 
 ## Getting started
 
@@ -35,12 +35,11 @@ For this, you need to install Docker desktop.  You can follow the instructions o
 After installing docker desktop, we advise you to pull the docker images for sensor processing before you start. The images are rather big.
 Use the docker pull command from the command line:
 
-* docker pull tae898/yolov5 (15.84GB): object detection
-* docker pull tae898/age-gender (4.96GB): face properties
-* docker pull tae898/face-detection-recognition (2.9GB): face identitification
+- docker pull tae898/yolov5 (15.84GB): object detection
+- docker pull tae898/age-gender (4.96GB): face properties
+- docker pull tae898/face-detection-recognition (2.9GB): face identitification
 
 Once the docker images are loaded and running in your Docker desktop they are available to make calls from the notebooks and other code.
-
 
 ## Installing
 
@@ -49,40 +48,40 @@ In order to install the packages you should do the following from the terminal:
 <ol>
 <li> Clone this repo and do the following commands from the terminal:
 
-``` python
+```python
 git clone git@github.com:leolani/cltl-chatbots.git
 ```
 
 <li> "cd" to clt-chatbots where the code is cloned and create a virtual environment within your cloned folder for
    installing all required packages and modules. 
-   
-``` python
+
+```python
 cd cltl-chatbots
 ```
-   
+
 If you do not have virtualenv for Python installed, install virtualenv for Python:
 
-``` python
+```python
 pip install --user virtualenv
 ```
 
 Then you can create and activate your virtual environment called `venv` :
 
-``` python
+```python
 python -m venv venv
 source venv/bin/activate
 ```
 
 <li> We need to make the virtual environment `venv` known to Jupyter notebooks. For this do the following:
 
-``` python
+```python
 pip install ipykernel
 python -m ipykernel install --user --name=venv
 ```
 
 <li> Now we are ready to install the main packages `emissor` and the `brain` and al other dependent packages:
 
-``` python
+```python
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
@@ -90,9 +89,10 @@ pip install -r requirements.txt
 <li> [OPTIONAL] Some notebooks use spaCy. Download the appropriate language model for spaCy before starting within the
    `venv`:
 
-``` python
+```python
 python -m spacy download en_core_web_sm
 ```
+
 </ol>
 
 When there are no error messages you can launch jupyter to load the notebooks.
@@ -101,14 +101,16 @@ When there are no error messages you can launch jupyter to load the notebooks.
 
 Start jupyter and select the kernel `venv`
 
-``` python
+```python
 jupyter lab
 ```
+
 Select kernel venv for each notebook
 
 ## Troubling shooting
+
 The code has been developed and tested on Mac OS and Linux. Some issues may arise when installing and running on Windows 10.
-You can consult the trouble shooting document for solutions: [TROUBLESHOOTING.md]<TROUBLESHOOTING.md>
+You can consult the trouble shooting document for solutions: \[TROUBLESHOOTING.md\]\<TROUBLESHOOTING.md>
 
 The best way to find and solve your problems is to see in the github issue tab. If you can't find what you want, feel free to raise an issue. We are pretty responsive.
 
@@ -117,10 +119,11 @@ The best way to find and solve your problems is to see in the github issue tab. 
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+1. Run `make test && make style && make quality` in the root repo directory, to ensure code quality.
+1. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+1. Push to the Branch (`git push origin feature/AmazingFeature`)
+1. Open a Pull Request
 
 ## References
 
