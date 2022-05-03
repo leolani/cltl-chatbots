@@ -106,9 +106,7 @@ def listen_and_remember(scenario_ctrl,
 
 
 def main():
-    ### Link your camera
     nlp = spacy.load("en_core_web_sm")
-    # Initialise the brain in GraphDB
 
     ##### Setting the agents
     AGENT = "Leolani2"
@@ -116,6 +114,7 @@ def main():
     HUMAN_ID = "stranger1"
     scenarioStorage, scenario_ctrl, imagefolder, rdffolder, location, place_id = emissor_api.start_a_scenario(AGENT, HUMAN_ID, HUMAN_NAME)
 
+    # Initialise the brain in GraphDB
     log_path = pathlib.Path(rdffolder)
     my_brain = brain.LongTermMemory(address="http://localhost:7200/repositories/sandbox",
                                     log_dir=log_path,
